@@ -1,0 +1,274 @@
+---
+title: "CARPS Reproducibility Report"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+#### Article ID: 9-5-2015
+#### Pilot 1: Kari Leibowitz
+#### Co-pilot: Yochai Shavit
+#### Start date: 11/1/17
+#### End date: [Insert end date - use US format]   
+
+-------
+
+#### Methods summary: 
+[Write a brief summary of the methods underlying the target outcomes written in your own words]
+
+------
+
+#### Target outcomes: 
+
+For this article we focused on the findings reported in the results section of Experiment 1.
+
+Specifically, we should attempted to reproduce all descriptive and inferential analyses reported in the text below and associated tables/figures:
+
+> Figures 2, 3, and 4 summarize results for all age groups
+and traits; higher percentages of expected responses (i.e.,
+those predicted on the basis of prior data—e.g., that
+trustworthy faces would be identified as nice and untrustworthy
+faces as mean) indicate stronger consensus. Combined, all four age groups showed significant consensus
+compared with chance (50%) when identifying
+faces as mean or nice (93%; Fig. 2), strong or not strong
+(85%; Fig. 3), and smart or not smart (76%; Fig. 4).
+Critically, all age groups attributed all three traits with
+significant consensus, ps < .001, ds > 1.08. However, an
+analysis of variance (ANOVA) revealed a significant main
+effect of age group, F(3, 236) = 17.91, p < .001. Although
+3- to 4-year-olds responded with robust and adult like
+consensus (72% across all traits), they were less consistent
+than 5- to 6-year-olds (81%), 7- to 10-year-olds (88%),
+and adults (89%). One-way ANOVAs followed by post hoc tests with Sidak corrections for multiple comparisons
+were used to analyze age differences for each trait. These
+analyses revealed that when attributing both trustworthiness
+and dominance, 3- to 4-year-olds were less consistent
+than all other age groups (all ps < .01, ds > 0.59),
+which exhibited equivalent consistency (all ps > .23, ds <
+0.40).
+
+
+Kari's still to dos:
+>  Combined, all four age groups showed significant consensus
+compared with chance (50%) when identifying
+faces as mean or nice , strong or not strong
+, and smart or not smart.
+
+Critically, all age groups attributed all three traits with
+significant consensus, ps < .001, ds > 1.08. However, an
+analysis of variance (ANOVA) revealed a significant main
+effect of age group, F(3, 236) = 17.91, p < .001. 
+
+
+One-way ANOVAs followed by post hoc tests with Sidak corrections for multiple comparisons
+were used to analyze age differences for each trait. These
+analyses revealed that when attributing both trustworthiness
+and dominance, 3- to 4-year-olds were less consistent
+than all other age groups (all ps < .01, ds > 0.59),
+which exhibited equivalent consistency (all ps > .23, ds <
+0.40).
+
+
+
+------
+
+Questions for Yochai: what does it mean to say there was "significant consensus" as compared to chance - what kind of statistical test can I do for that?
+
+
+[The chunk below sets up some formatting options for the R Markdown document]
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE)
+```
+
+## Step 1: Load packages
+
+[Some useful packages are being loaded below. You can add any additional ones you might need too.]
+
+```{r}
+library(tidyverse) # for data munging
+library(knitr) # for kable table formating
+library(haven) # import and export 'SPSS', 'Stata' and 'SAS' Files
+library(readxl) # import excel files
+library(CARPSreports) # custom report functions
+```
+
+## Step 2: Load data
+
+```{r}
+setwd("~/Desktop/251")
+d<- read.csv("CARPS_9-5-2014_PS/data/Cogsdill_FaceTrait_Experiment1Public_04Feb14.csv")
+
+head(d)
+```
+
+## Step 3: Tidy data
+
+Want to gather data into age groups for each variable 
+```{r}
+
+dtidy <- select(d, 'Age.Group', 'NICE', 'SMART', 'STRONG') 
+
+summariseCC <- summarise(group_by(CCdataframeordered, Question, add=TRUE), mean = mean(response, na.rm=T), sd=sd(response, na.rm=TRUE), n=n(), se=sd/sqrt(n))
+
+dtidy2 <- dtidy %>%
+  gather(Attribute, Rating, -Age.Group)
+
+summarised <- summarise(group_by(dtidy2, Age.Group, Attribute, add=TRUE), mean=mean(Rating, na.rm=T), sd=sd(Rating, na.rm=T), n=n(), se=sd/sqrt(n))
+
+```
+
+## Step 4: Run analysis
+
+### Descriptive statistics
+
+#### Figure 2 and associated data: NICE
+
+Here recreating Figure 2, a bar graph of percentage of expected responses for niceness
+```{r figure 2}
+
+dnice <- summarised %>%
+  filter(Attribute=="NICE")
+
+ggplot(data=dnice, aes(x=Age.Group, y=mean, fill=Age.Group)) +
+    geom_bar(stat="summary", fun.y="mean", position="dodge") +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=1)
+
+```
+
+Replicating this finding:
+">Combined, all four age groups showed significant consensus
+compared with chance (50%) when identifying
+faces as mean or nice (93%; Fig. 2)... Cogsdill et al., page 1134"
+```{r niceness average}
+
+mean(dtidy$NICE, na.rm=T)
+
+```
+Mean = 92.9, consistent with paper's finding
+
+
+#### Figure 3 and associated data: STRONG
+
+Here recreating Figure 3, a bar graph of percentage of expected responses for strength/submissiveness
+```{r figure 3}
+
+dstrong <- summarised %>%
+  filter(Attribute=="STRONG")
+
+ggplot(data=dstrong, aes(x=Age.Group, y=mean, fill=Age.Group)) +
+    geom_bar(stat="summary", fun.y="mean", position="dodge") +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=1)
+
+
+```
+
+
+Replicating this finding:
+">Combined, all four age groups showed significant consensus
+compared with chance (50%) when identifying
+faces as...strong or not strong
+(85%; Fig. 3)... Cogsdill et al., page 1134""
+```{r niceness average}
+
+mean(dtidy$STRONG, na.rm=T)
+
+```
+Mean = 84.6, consistent with paper's finding
+
+
+#### Figure 4 and associated data: SMART
+
+```{r figure 4}
+
+dsmart <- summarised %>%
+  filter(Attribute=="SMART")
+
+ggplot(data=dsmart, aes(x=Age.Group, y=mean, fill=Age.Group)) +
+    geom_bar(stat="summary", fun.y="mean", position="dodge") +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=1)
+
+```
+
+Replicating this finding:
+
+">Combined, all four age groups showed significant consensus
+compared with chance (50%) when identifying
+faces as...smart or not smart (76%; Fig. 4). Cogsdill et al., page 1134"
+```{r smartness average}
+
+mean(dtidy$SMART, na.rm=T)
+
+```
+Mean = 75.9, consistent with paper's finding
+
+
+#### Checking consistency across age groups
+
+">Although 3- to 4-year-olds responded with robust and adult like consensus (72% across all traits), they were less consistent than 5- to 6-year-olds (81%), 7- to 10-year-olds (88%), and adults (89%). Cogsdill et al., page 1134"
+
+```{r consistency by age group across traits}
+
+d3_4 <- dtidy2 %>%
+  filter(Age.Group=="3-4 year olds")
+mean(d3_4$Rating)
+
+d5_6 <- dtidy2 %>%
+  filter(Age.Group=="5-6 year olds")
+mean(d5_6$Rating)
+
+d7_10 <- dtidy2 %>%
+  filter(Age.Group=="7-10 year olds")
+mean(d7_10$Rating)
+
+dadults <- dtidy2 %>%
+  filter(Age.Group=="Adults")
+mean(dadults$Rating)
+```
+
+Average across 3-4 year olds: 71.5%
+Average across 5-6 year olds: 81.4%
+Average across 7-10 year olds: 88.2%
+Average across adults: 88.8%
+All consistent with statistics reported in paper 
+
+### Inferential statistics
+
+Anova's go here 
+
+```{r}
+```
+
+## Step 5: Conclusion
+
+[Include the carpsReport function below]
+
+```{r}
+# You can delete this commented text for your report, it is here to serve as a guide.
+# Use the carpsReport() function in this code chunk.
+# Here is a guide to the arguments you should include in the function:
+# Report_Type: Enter 'pilot' or 'final'
+# Article_ID: Enter the article's unique ID code
+# Insufficient_Information_Errors: Enter the number of Insufficient Information Errors
+# Decision_Errors Enter: the number of decision errors
+# Major_Numerical_Errors: Enter the number of major numerical errors
+# Time_to_Complete: Enter the estimated time to complete the report in minutes
+# Author_Assistance: Enter whether author assistance was required (TRUE/FALSE)
+# FOR EXAMPLE:
+# carpsReport(Report_Type = "pilot", 
+#             Article_ID = "ABhgyo", 
+#             Insufficient_Information_Errors = 0, 
+#             Decision_Errors = 1, 
+#             Major_Numerical_Errors = 4, 
+#             Time_to_Complete = 120, 
+#             Author_Assistance = TRUE)
+```
+
+[Please also include a brief text summary describing your findings. If this reproducibility check was a failure, you should note any suggestions as to what you think the likely cause(s) might be.]
+
+[This function will output information about the package versions used in this report:]
+
+```{r session_info, include=TRUE, echo=TRUE, results='markup'}
+devtools::session_info()
+```
