@@ -15,7 +15,7 @@ output:
 -------
 
 #### Methods summary: 
-[Write a brief summary of the methods underlying the target outcomes written in your own words]
+Here, the authors showed participants in four age groups pairs of faces that were pre-determined to be high or low in three traits: niceness (trustworthiness), intelligence, or strength (dominance). The authors then assessed the ability of these age groups to accurately identify which of two faces was high in a particular trait, and the consistency of these different age groups to each other in terms of the ability to "correctly" identify traits of faces based on a pre-determined consensus. 
 
 ------
 
@@ -49,22 +49,7 @@ which exhibited equivalent consistency (all ps > .23, ds <
 0.40).
 
 
-Kari's still to dos:
-
-One-way ANOVAs followed by post hoc tests with Sidak corrections for multiple comparisons
-were used to analyze age differences for each trait. These
-analyses revealed that when attributing both trustworthiness
-and dominance, 3- to 4-year-olds were less consistent
-than all other age groups (all ps < .01, ds > 0.59),
-which exhibited equivalent consistency (all ps > .23, ds <
-0.40).
-
-
-
 ------
-
-Questions for Yochai: what does it mean to say there was "significant consensus" as compared to chance - what kind of statistical test can I do for that?
-
 
 [The chunk below sets up some formatting options for the R Markdown document]
 
@@ -157,10 +142,7 @@ ggplot(data=dstrong, aes(x=Age.Group, y=mean, fill=Age.Group)) +
 
 
 Replicating this finding:
-">Combined, all four age groups showed significant consensus
-compared with chance (50%) when identifying
-faces as...strong or not strong
-(85%; Fig. 3)... Cogsdill et al., page 1134""
+">Combined, all four age groups showed significant consensus compared with chance (50%) when identifying faces as...strong or not strong (85%; Fig. 3)... Cogsdill et al., page 1134""
 ```{r niceness average}
 
 mean(dtidy$STRONG, na.rm=T)
@@ -184,9 +166,7 @@ ggplot(data=dsmart, aes(x=Age.Group, y=mean, fill=Age.Group)) +
 
 Replicating this finding:
 
-">Combined, all four age groups showed significant consensus
-compared with chance (50%) when identifying
-faces as...smart or not smart (76%; Fig. 4). Cogsdill et al., page 1134"
+">Combined, all four age groups showed significant consensus compared with chance (50%) when identifying faces as...smart or not smart (76%; Fig. 4). Cogsdill et al., page 1134"
 ```{r smartness average}
 
 mean(dtidy$SMART, na.rm=T)
@@ -259,9 +239,6 @@ sum(d$strong_wrong) #332
 chisq.test(x=c(1828, 332))
 #p<.001
 
-
-
-
 ```
 
 
@@ -321,6 +298,26 @@ summary(aov(OVERALL ~ Age.Group, data=d))
 #F(3, 236) = 17.91, p<.001
 
 ```
+
+Replicating this finding:
+"> One-way ANOVAs followed by post hoc tests with Sidak corrections for multiple comparisons were used to analyze age differences for each trait. These analyses revealed that when attributing both trustworthiness and dominance, 3- to 4-year-olds were less consistent than all other age groups (all ps < .01, ds > 0.59), which exhibited equivalent consistency (all ps > .23, ds < 0.40). Cogsdill et al., page 1134"
+
+```{r}
+
+#first running one way anovas for each trait
+
+summary(aov(NICE ~ Age.Group, data=d)) #p<.001, indicating difference between groups?
+summary(aov(SMART ~ Age.Group, data=d)) #p<.001, indicating difference between groups?
+summary(aov(STRONG ~ Age.Group, data=d)) #p<.001, indicating difference between groups?
+
+
+with(d, pairwise.t.test(NICE, Age.Group, 
+p.adj="sidak", paired=T))
+
+```
+
+
+
 
 ## Step 5: Conclusion
 
