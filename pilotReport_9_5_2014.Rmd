@@ -67,7 +67,10 @@ library(knitr) # for kable table formating
 library(haven) # import and export 'SPSS', 'Stata' and 'SAS' Files
 library(readxl) # import excel files
 library(CARPSreports) # custom report functions
-library(effsize)
+library(effsize) #used to calculate effect size
+library(dunn.test)#used to do post hoc comparisons with Sidak's correction
+install.packages("car")
+library(car)
 ```
 
 ## Step 2: Load data
@@ -314,15 +317,31 @@ Replicating this finding:
 
 ```{r}
 
-#first running one way anovas for each trait
+#running anova for nice
+aovnice <- aov(NICE ~ Age.Group, data=d)
+summary(aovnice)
 
-summary(aov(NICE ~ Age.Group, data=d)) #p<.001, indicating difference between groups?
-summary(aov(SMART ~ Age.Group, data=d)) #p<.001, indicating difference between groups?
-summary(aov(STRONG ~ Age.Group, data=d)) #p<.001, indicating difference between groups?
+#running dunn test to try and compare sidak correction for #nice
+dunn.test(d$NICE, d$Age.Group, method="sidak")
+#according to this we get a different output from the authors - that there is no difference between 5-6 year olds and 3-4 year olds, and that the other age groups
+#also don't know how to get d value for this 
 
+#looking at Tukey HSD correction for nice
+TukeyHSD(aovnice)
 
-with(d, pairwise.t.test(NICE, Age.Group, 
-p.adj="sidak", paired=T))
+#running anova for smart
+summary(aov(SMART ~ Age.Group, data=d)) #this is not mentioned
+
+#running anova for strong
+aovstrong <- aov(STRONG~Age.Group, data=d)
+summary(aovstrong)
+
+#running dunn test to try and compare sidak correction for strong
+dunn.test(d$STRONG, d$Age.Group, method="sidak")
+#according to this we get the same outcome as the authors, that 3-4 year olds were less consistent than other age groups (all ps <.01) but could not get the ds 
+
+#looking at Tukey HSD correction for nice
+TukeyHSD(aovstrong)
 
 ```
 
@@ -348,10 +367,10 @@ p.adj="sidak", paired=T))
 # carpsReport(Report_Type = "pilot", 
 #             Article_ID = "ABhgyo", 
 #             Insufficient_Information_Errors = 0, 
-#             Decision_Errors = 1, 
-#             Major_Numerical_Errors = 4, 
-#             Time_to_Complete = 120, 
-#             Author_Assistance = TRUE)
+#             Decision_Errors = 0, 
+#             Major_Numerical_Errors = 0, 
+#             Time_to_Complete = 240, 
+#             Author_Assistance = FALSE)
 ```
 
 [Please also include a brief text summary describing your findings. If this reproducibility check was a failure, you should note any suggestions as to what you think the likely cause(s) might be.]
