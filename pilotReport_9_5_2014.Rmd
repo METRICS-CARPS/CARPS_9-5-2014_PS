@@ -212,6 +212,10 @@ All consistent with statistics reported in paper
 Relicating this finding
 ">Combined, all four age groups showed significant consensus compared with chance (50%) when identifying faces as mean or nice , strong or not strong, and smart or not smart."
 
+#####INSUFFICIENT INFORMATION ERROR.
+
+We attempted to replicate this finding using our best guess of what test to use, but after calculating this realized that this probably entailed "lengthy guesswork" on our part. Thus, we have marked this as an insufficient information error but also included the tests we attempted to run below. 
+
 Looking at all four age groups combined for each of the three attributes. Here, we are using a chi squared test to compare the number of correct trials to the number of incorrect trials, although the authors do not specify exactly what statistical test was used to identify this concensus, so this is our best guess at what test was used. 
 
 All ps<.001, consistent with author's finding.
@@ -245,6 +249,12 @@ chisq.test(x=c(1828, 332))
 Replicating this finding:
 ">Critically, all age groups attributed all three traits with
 significant consensus, ps < .001, ds > 1.08. from Cogsdill et al. page 1134"
+
+
+#####INSUFFICIENT INFORMATION ERROR.
+
+We attempted to replicate this finding using our best guess of what test to use, but after calculating this realized that this probably entailed "lengthy guesswork" on our part. Thus, we have marked this as an insufficient information error but also included the tests we attempted to run below. 
+
 Note: the authors don't specify what analytical test was used to determine consensus across age groups and there is some ambiguity in the phrasing here. We took this to mean that within each age group, ratings for each of the three attributes (nice, smart, strong) were consistent. In order to examine this, we looked at t tests and effect sizes for the percentage of correct and incorrect identifications using the "overall" variable across all attributes within each age group. However, it is unclear from the manuscript whether this was the correct approach. 
 
 The paper also indicates that all ps <.001 and all ds>1.08. Using this method, we found that all ps were indeed < .001, but found that our smallest d was 1.42, indicating a potential discrepency between our findings and the paper's findings. However, without more information, it is unclear whether this discrepancy represents an error on our part or the part of the original authors, or simply that we did not replicate the same method described in the paper.
