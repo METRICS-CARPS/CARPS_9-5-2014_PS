@@ -50,21 +50,6 @@ which exhibited equivalent consistency (all ps > .23, ds <
 
 
 Kari's still to dos:
->  Combined, all four age groups showed significant consensus
-compared with chance (50%) when identifying
-faces as mean or nice , strong or not strong
-, and smart or not smart. 
-
-^Chi squared how many correct classifications compared to how many incorrect classifications. 
-multiply each response by 9 since there were 9 trials - then use that to get the number of correct classifications (i.e. .778 = 7 trials right, which means 2 trials wrong), then sum across participants to get # of correct answers (and # of incorrect answers), then for the chi squared test 
-chisq.test(x=c(success, failure))
-over all participants 
-
-
-However, an
-analysis of variance (ANOVA) revealed a significant main
-effect of age group, F(3, 236) = 17.91, p < .001. 
-
 
 One-way ANOVAs followed by post hoc tests with Sidak corrections for multiple comparisons
 were used to analyze age differences for each trait. These
@@ -247,19 +232,37 @@ All consistent with statistics reported in paper
 Relicating this finding
 ">Combined, all four age groups showed significant consensus compared with chance (50%) when identifying faces as mean or nice , strong or not strong, and smart or not smart."
 
-Looking at all four age groups combined for each of the three attributes. 
+Looking at all four age groups combined for each of the three attributes. Here, we are using a chi squared test to compare the number of correct trials to the number of incorrect trials, although the authors do not specify exactly what statistical test was used to identify this concensus, so this is our best guess at what test was used. 
+
+All ps<.001, consistent with author's finding.
 ```{r consensus compared with chance}
+
+#multiplying each response by 9 since there were 9 trials, using that to compute # of correct and incorrect, inputting correct vs. incorrect into chi square test 
+d$nice_correct <- round(9*d$NICE)
+d$nice_wrong <- (9-d$nice_correct)
+sum(d$nice_correct) #2007
+sum(d$nice_wrong) #153
+chisq.test(x=c(2007, 153))
+#p<.001
+
+d$smart_correct <- round(9*d$SMART)
+d$smart_wrong <- (9-d$smart_correct)
+sum(d$smart_correct) #1641
+sum(d$smart_wrong) #519
+chisq.test(x=c(1641, 519))
+#p<.001
+
+d$strong_correct <- round(9*d$STRONG)
+d$strong_wrong <- (9-d$strong_correct)
+sum(d$strong_correct) #1828
+sum(d$strong_wrong) #332
+chisq.test(x=c(1828, 332))
+#p<.001
+
 
 
 
 ```
-
-^Chi squared how many correct classifications compared to how many incorrect classifications. 
-multiply each response by 9 since there were 9 trials - then use that to get the number of correct classifications (i.e. .778 = 7 trials right, which means 2 trials wrong), then sum across participants to get # of correct answers (and # of incorrect answers), then for the chi squared test 
-chisq.test(x=c(success, failure))
-over all participants 
-
-
 
 
 Replicating this finding:
@@ -305,11 +308,18 @@ cohen.d(dadultoverall$OVERALL, dadultoverall$overall_wrong, paired=T)
 
 ```
 
-
-
 Anova's go here 
 
+Replicating this finding:
+">However, an analysis of variance (ANOVA) revealed a significant main effect of age group, F(3, 236) = 17.91, p < .001. Cogsdill et al., page 1134"
+
+Our results are consistent with this finding.
+
 ```{r}
+
+summary(aov(OVERALL ~ Age.Group, data=d))
+#F(3, 236) = 17.91, p<.001
+
 ```
 
 ## Step 5: Conclusion
