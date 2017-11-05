@@ -259,7 +259,8 @@ library(readxl) # import excel files
 library(CARPSreports) # custom report functions
 library(effsize) #used to calculate effect size
 library(dunn.test)#used to do post hoc comparisons with Sidak's correction
-library(car)</code></pre>
+library(car)
+library(lsr) #using this to get effect sizes </code></pre>
 </div>
 <div id="step-2-load-data" class="section level2">
 <h2>Step 2: Load data</h2>
@@ -524,7 +525,6 @@ t.test(dadultoverall$OVERALL, dadultoverall$overall_wrong, paired=T)</code></pre
 ##      inf      sup 
 ## 2.768764 3.613996</code></pre>
 <pre class="r"><code>#p&lt;.001, d=3.19</code></pre>
-<p>Anova’s go here</p>
 <p>Replicating this finding: “&gt;However, an analysis of variance (ANOVA) revealed a significant main effect of age group, F(3, 236) = 17.91, p &lt; .001. Cogsdill et al., page 1134”</p>
 <p>Our results are consistent with this finding.</p>
 <pre class="r"><code>summary(aov(OVERALL ~ Age.Group, data=d))</code></pre>
@@ -535,6 +535,10 @@ t.test(dadultoverall$OVERALL, dadultoverall$overall_wrong, paired=T)</code></pre
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <pre class="r"><code>#F(3, 236) = 17.91, p&lt;.001</code></pre>
 <p>Replicating this finding: “&gt; One-way ANOVAs followed by post hoc tests with Sidak corrections for multiple comparisons were used to analyze age differences for each trait. These analyses revealed that when attributing both trustworthiness and dominance, 3- to 4-year-olds were less consistent than all other age groups (all ps &lt; .01, ds &gt; 0.59), which exhibited equivalent consistency (all ps &gt; .23, ds &lt; 0.40). Cogsdill et al., page 1134”</p>
+<p>Inconsistency 1: When attributing trustworthiness, there was no difference between the consistency of 3-4 year olds and 5-6 year olds. (p=.0465)</p>
+<p>Inconsistency 2: When looking at the consistency of all other groups “which exhibited equivalent consistency (all ps&gt;.23)” for trustworthiness, the 5-6 year olds vs. the 7-10 year olds, p=.0378. I am not sure if this was not marked as significant because of the Sidak correction for multiple comparisons, but it is not greater than .23.</p>
+<p>Inconsistency 3: When looking at the attribute of dominance, the 5-6 year olds were significantly different than the adults (p=.0047) and the 7-10 year olds compared to the adults had a p=.0532, which again is inconsistent with what the authors stated.</p>
+<p>It is unclear to me whether these inconsistencies are a) a result of running this test in R using this package as opposed to in another software; b) due to replicator error in calculating or interpreting outputs or; c) indicative of true errors.</p>
 <pre class="r"><code>#running anova for nice
 aovnice &lt;- aov(NICE ~ Age.Group, data=d)
 summary(aovnice)</code></pre>
@@ -567,31 +571,38 @@ dunn.test(d$NICE, d$Age.Group, method=&quot;sidak&quot;)</code></pre>
 ## 
 ## alpha = 0.05
 ## Reject Ho if p &lt;= alpha/2</code></pre>
-<pre class="r"><code>#according to this we get a different output from the authors - that there is no difference between 5-6 year olds and 3-4 year olds, and that the other age groups
-#also don't know how to get d value for this 
+<pre class="r"><code>#according to this we get a different output from the authors - that there is no difference between 5-6 year olds and 3-4 year olds
 
-#looking at Tukey HSD correction for nice
-TukeyHSD(aovnice)</code></pre>
-<pre><code>##   Tukey multiple comparisons of means
-##     95% family-wise confidence level
-## 
-## Fit: aov(formula = NICE ~ Age.Group, data = d)
-## 
-## $Age.Group
-##                                     diff         lwr        upr     p adj
-## 5-6 year olds-3-4 year olds   0.10688595  0.02372130 0.19005060 0.0056127
-## 7-10 year olds-3-4 year olds  0.14298298  0.06113877 0.22482719 0.0000575
-## Adults-3-4 year olds          0.12754191  0.05364674 0.20143707 0.0000727
-## 7-10 year olds-5-6 year olds  0.03609704 -0.03916913 0.11136320 0.6014764
-## Adults-5-6 year olds          0.02065596 -0.04587986 0.08719178 0.8528502
-## Adults-7-10 year olds        -0.01544108 -0.08031890 0.04943674 0.9269709</code></pre>
-<pre class="r"><code>#running anova for smart
+#running anova for smart
 summary(aov(SMART ~ Age.Group, data=d)) #this is not mentioned</code></pre>
 <pre><code>##              Df Sum Sq Mean Sq F value   Pr(&gt;F)    
 ## Age.Group     3  1.181  0.3937   6.184 0.000462 ***
 ## Residuals   236 15.026  0.0637                     
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+<pre class="r"><code>dunn.test(d$SMART, d$Age.Group, method=&quot;sidak&quot;) #3-4 year olds not different than 5-6 yera olds; probably why this attribute is not mentioned</code></pre>
+<pre><code>##   Kruskal-Wallis rank sum test
+## 
+## data: x and group
+## Kruskal-Wallis chi-squared = 17.7879, df = 3, p-value = 0
+## 
+## 
+##                            Comparison of x by group                            
+##                                     (Šidák)                                    
+## Col Mean-|
+## Row Mean |   3-4 year   5-6 year   7-10 yea
+## ---------+---------------------------------
+## 5-6 year |  -0.215113
+##          |     0.9599
+##          |
+## 7-10 yea |  -3.004042  -3.028899
+##          |    0.0080*    0.0073*
+##          |
+##   Adults |  -2.907138  -2.959814   0.478437
+##          |    0.0109*    0.0092*     0.8977
+## 
+## alpha = 0.05
+## Reject Ho if p &lt;= alpha/2</code></pre>
 <pre class="r"><code>#running anova for strong
 aovstrong &lt;- aov(STRONG~Age.Group, data=d)
 summary(aovstrong)</code></pre>
@@ -624,50 +635,67 @@ dunn.test(d$STRONG, d$Age.Group, method=&quot;sidak&quot;)</code></pre>
 ## 
 ## alpha = 0.05
 ## Reject Ho if p &lt;= alpha/2</code></pre>
-<pre class="r"><code>#according to this we get the same outcome as the authors, that 3-4 year olds were less consistent than other age groups (all ps &lt;.01) but could not get the ds 
+<pre class="r"><code>#according to this we get the same outcome as the authors, that 3-4 year olds were less consistent than other age groups (all ps &lt;.01) </code></pre>
+<p>Replicating this finding: “&gt; One-way ANOVAs followed by post hoc tests with Sidak corrections for multiple comparisons were used to analyze age differences for each trait. These analyses revealed that when attributing both trustworthiness and dominance, 3- to 4-year-olds were less consistent than all other age groups (all ps &lt; .01, ds &gt; 0.59), which exhibited equivalent consistency (all ps &gt; .23, ds &lt; 0.40). Cogsdill et al., page 1134”</p>
+<p>Inconsistency 1: When attributing trustworthiness, there was no difference between the consistency of 3-4 year olds and 5-6 year olds. (p=.0465)</p>
+<p>Inconsistency 2: When looking at the consistency of all other groups “which exhibited equivalent consistency (all ps&gt;.23)” for trustworthiness, the 5-6 year olds vs. the 7-10 year olds, p=.0378. I am not sure if this was not marked as significant because of the Sidak correction for multiple comparisons, but it is not greater than .23.</p>
+<p>Inconsistency 3: When looking at the attribute of dominance, the 5-6 year olds were significantly different than the adults (p=.0047) and the 7-10 year olds compared to the adults had a p=.0532, which again is inconsistent with what the authors stated.</p>
+<pre class="r"><code>#inconsistency 1
+compareValues(reportedValue = .01, obtainedValue = .0465, isP = T)</code></pre>
+<pre><code>## [1] &quot;DECISION ERROR and MAJOR NUMERICAL ERROR. The reported value (0.01) and the obtained value (0.05) differed by 400%. NB obtained value was rounded to 2 decimal places.&quot;</code></pre>
+<pre class="r"><code>#decision error and major numerical error
 
-#looking at Tukey HSD correction for nice
-TukeyHSD(aovstrong)</code></pre>
-<pre><code>##   Tukey multiple comparisons of means
-##     95% family-wise confidence level
-## 
-## Fit: aov(formula = STRONG ~ Age.Group, data = d)
-## 
-## $Age.Group
-##                                      diff         lwr        upr     p adj
-## 5-6 year olds-3-4 year olds   0.200277297  0.08727548 0.31327912 0.0000433
-## 7-10 year olds-3-4 year olds  0.194945445  0.08373780 0.30615309 0.0000538
-## Adults-3-4 year olds          0.271398307  0.17099161 0.37180500 0.0000000
-## 7-10 year olds-5-6 year olds -0.005331852 -0.10760143 0.09693773 0.9991216
-## Adults-5-6 year olds          0.071121010 -0.01928602 0.16152804 0.1779753
-## Adults-7-10 year olds         0.076452862 -0.01170132 0.16460704 0.1145491</code></pre>
+#inconsistency 2
+compareValues(reportedValue = .23, obtainedValue = .0378, isP = T)</code></pre>
+<pre><code>## [1] &quot;DECISION ERROR and MAJOR NUMERICAL ERROR. The reported value (0.23) and the obtained value (0.04) differed by 82.61%. NB obtained value was rounded to 2 decimal places.&quot;</code></pre>
+<pre class="r"><code>#decision error and major numerical error
+
+#inconsistency 3
+compareValues(reportedValue = .23, obtainedValue = .0047, isP = T)</code></pre>
+<pre><code>## [1] &quot;DECISION ERROR and MAJOR NUMERICAL ERROR. The reported value (0.23) and the obtained value (0) differed by 100%. NB obtained value was rounded to 2 decimal places.&quot;</code></pre>
+<pre class="r"><code>#decision error and major numerical error
+compareValues(reportedValue = .23, obtainedValue = .0532, isP = T)</code></pre>
+<pre><code>## [1] &quot;MAJOR NUMERICAL ERROR. The reported value (0.23) and the obtained value (0.05) differed by 78.26%. NB obtained value was rounded to 2 decimal places.&quot;</code></pre>
+<pre class="r"><code>#decision error and major numerical error</code></pre>
+<p>Looking at effect sizes: “&gt;These analyses revealed that when attributing both trustworthiness and dominance, 3- to 4-year-olds were less consistent than all other age groups (all ps &lt; .01, ds &gt; 0.59), which exhibited equivalent consistency (all ps &gt; .23, ds &lt; 0.40).”</p>
 </div>
+</div>
+<div id="insufficient-information-error" class="section level4">
+<h4>INSUFFICIENT INFORMATION ERROR</h4>
+<p>Here, we run into the same issue we ran into before: without more information about which specific tests were used to calculate “consistency,” we would need to engage in “lengthy guesswork” to determine what tests to use - although the authors state that an anova with post-hoc tests with Sidak corrections were used, this test (as far as I am aware) does not yield an effect size, which needs to be calculated separately. Thus, there is insufficient information regarding what statistical tests were used to calculate the effect sizes.</p>
 </div>
 </div>
 </div>
 <div id="step-5-conclusion" class="section level2">
 <h2>Step 5: Conclusion</h2>
-<p>[Include the carpsReport function below]</p>
-<pre class="r"><code># You can delete this commented text for your report, it is here to serve as a guide.
-# Use the carpsReport() function in this code chunk.
-# Here is a guide to the arguments you should include in the function:
-# Report_Type: Enter 'pilot' or 'final'
-# Article_ID: Enter the article's unique ID code
-# Insufficient_Information_Errors: Enter the number of Insufficient Information Errors
-# Decision_Errors Enter: the number of decision errors
-# Major_Numerical_Errors: Enter the number of major numerical errors
-# Time_to_Complete: Enter the estimated time to complete the report in minutes
-# Author_Assistance: Enter whether author assistance was required (TRUE/FALSE)
-# FOR EXAMPLE:
-# carpsReport(Report_Type = &quot;pilot&quot;, 
-#             Article_ID = &quot;ABhgyo&quot;, 
-#             Insufficient_Information_Errors = 0, 
-#             Decision_Errors = 0, 
-#             Major_Numerical_Errors = 0, 
-#             Time_to_Complete = 240, 
-#             Author_Assistance = FALSE)</code></pre>
-<p>[Please also include a brief text summary describing your findings. If this reproducibility check was a failure, you should note any suggestions as to what you think the likely cause(s) might be.]</p>
-<p>[This function will output information about the package versions used in this report:]</p>
+<pre class="r"><code>carpsReport(Report_Type = &quot;pilot&quot;, 
+             Article_ID = &quot;CARPS-9-5-2014&quot;, 
+             Insufficient_Information_Errors = 3, 
+             Decision_Errors = 3, 
+             Major_Numerical_Errors = 4, 
+             Time_to_Complete = 300, 
+             Author_Assistance = FALSE)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">Insufficient_Information_Errors</th>
+<th align="right">Decision_Errors</th>
+<th align="right">Major_Numerical_Errors</th>
+<th align="right">Time_to_Complete</th>
+<th align="left">Final_Outcome</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">3</td>
+<td align="right">3</td>
+<td align="right">4</td>
+<td align="right">300</td>
+<td align="left">Failure</td>
+</tr>
+</tbody>
+</table>
+<p>All of the descriptive findings we attempted to replicate were consistent with the original author’s report. The major errors in this paper concerned insufficient information in terms of how “consistency” betweena and across age groups was calculated. Additional errors found were decision errors and major numerical errors in regards to the pooled summaries of differences across groups.</p>
 <pre class="r"><code>devtools::session_info()</code></pre>
 <pre><code>##  setting  value                       
 ##  version  R version 3.4.1 (2017-06-30)
@@ -676,7 +704,7 @@ TukeyHSD(aovstrong)</code></pre>
 ##  language (EN)                        
 ##  collate  en_US.UTF-8                 
 ##  tz       America/Los_Angeles         
-##  date     2017-11-03                  
+##  date     2017-11-05                  
 ## 
 ##  package      * version date      
 ##  assertthat     0.2.0   2017-04-11
@@ -705,6 +733,7 @@ TukeyHSD(aovstrong)</code></pre>
 ##  grid           3.4.1   2017-07-07
 ##  gtable         0.2.0   2016-02-26
 ##  haven        * 1.1.0   2017-07-09
+##  highr          0.6     2016-05-09
 ##  hms            0.3     2016-11-22
 ##  htmltools      0.3.6   2017-04-28
 ##  httr           1.3.1   2017-08-20
@@ -714,6 +743,7 @@ TukeyHSD(aovstrong)</code></pre>
 ##  lattice        0.20-35 2017-03-25
 ##  lazyeval       0.2.0   2016-06-12
 ##  lme4           1.1-14  2017-09-27
+##  lsr          * 0.5     2015-03-02
 ##  lubridate      1.6.0   2016-09-13
 ##  magrittr       1.5     2014-11-22
 ##  MASS           7.3-47  2017-02-26
@@ -788,6 +818,7 @@ TukeyHSD(aovstrong)</code></pre>
 ##  CRAN (R 3.4.1)                             
 ##  CRAN (R 3.4.0)                             
 ##  CRAN (R 3.4.0)                             
+##  CRAN (R 3.4.0)                             
 ##  CRAN (R 3.4.1)                             
 ##  CRAN (R 3.4.0)                             
 ##  CRAN (R 3.4.1)                             
@@ -795,6 +826,7 @@ TukeyHSD(aovstrong)</code></pre>
 ##  CRAN (R 3.4.1)                             
 ##  CRAN (R 3.4.0)                             
 ##  CRAN (R 3.4.2)                             
+##  CRAN (R 3.4.0)                             
 ##  CRAN (R 3.4.0)                             
 ##  CRAN (R 3.4.0)                             
 ##  CRAN (R 3.4.1)                             

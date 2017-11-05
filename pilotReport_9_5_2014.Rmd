@@ -70,6 +70,7 @@ library(CARPSreports) # custom report functions
 library(effsize) #used to calculate effect size
 library(dunn.test)#used to do post hoc comparisons with Sidak's correction
 library(car)
+library(lsr) #using this to get effect sizes 
 ```
 
 ## Step 2: Load data
@@ -295,8 +296,6 @@ cohen.d(dadultoverall$OVERALL, dadultoverall$overall_wrong, paired=T)
 
 ```
 
-Anova's go here 
-
 Replicating this finding:
 ">However, an analysis of variance (ANOVA) revealed a significant main effect of age group, F(3, 236) = 17.91, p < .001. Cogsdill et al., page 1134"
 
@@ -312,7 +311,14 @@ summary(aov(OVERALL ~ Age.Group, data=d))
 Replicating this finding:
 "> One-way ANOVAs followed by post hoc tests with Sidak corrections for multiple comparisons were used to analyze age differences for each trait. These analyses revealed that when attributing both trustworthiness and dominance, 3- to 4-year-olds were less consistent than all other age groups (all ps < .01, ds > 0.59), which exhibited equivalent consistency (all ps > .23, ds < 0.40). Cogsdill et al., page 1134"
 
-```{r}
+Inconsistency 1: When attributing trustworthiness, there was no difference between the consistency of 3-4 year olds and 5-6 year olds. (p=.0465) 
+
+Inconsistency 2: When looking at the consistency of all other groups "which exhibited equivalent consistency (all ps>.23)" for trustworthiness, the 5-6 year olds vs. the 7-10 year olds, p=.0378. I am not sure if this was not marked as significant because of the Sidak correction for multiple comparisons, but it is not greater than .23. 
+
+Inconsistency 3: When looking at the attribute of dominance, the 5-6 year olds were significantly different than the adults (p=.0047) and the 7-10 year olds compared to the adults had a p=.0532, which again is inconsistent with what the authors stated. 
+
+It is unclear to me whether these inconsistencies are a) a result of running this test in R using this package as opposed to in another software; b) due to replicator error in calculating or interpreting outputs or; c) indicative of true errors. 
+```{r final anovas}
 
 #running anova for nice
 aovnice <- aov(NICE ~ Age.Group, data=d)
@@ -320,14 +326,11 @@ summary(aovnice)
 
 #running dunn test to try and compare sidak correction for #nice
 dunn.test(d$NICE, d$Age.Group, method="sidak")
-#according to this we get a different output from the authors - that there is no difference between 5-6 year olds and 3-4 year olds, and that the other age groups
-#also don't know how to get d value for this 
-
-#looking at Tukey HSD correction for nice
-TukeyHSD(aovnice)
+#according to this we get a different output from the authors - that there is no difference between 5-6 year olds and 3-4 year olds
 
 #running anova for smart
 summary(aov(SMART ~ Age.Group, data=d)) #this is not mentioned
+dunn.test(d$SMART, d$Age.Group, method="sidak") #3-4 year olds not different than 5-6 yera olds; probably why this attribute is not mentioned
 
 #running anova for strong
 aovstrong <- aov(STRONG~Age.Group, data=d)
@@ -335,42 +338,61 @@ summary(aovstrong)
 
 #running dunn test to try and compare sidak correction for strong
 dunn.test(d$STRONG, d$Age.Group, method="sidak")
-#according to this we get the same outcome as the authors, that 3-4 year olds were less consistent than other age groups (all ps <.01) but could not get the ds 
-
-#looking at Tukey HSD correction for nice
-TukeyHSD(aovstrong)
+#according to this we get the same outcome as the authors, that 3-4 year olds were less consistent than other age groups (all ps <.01) 
 
 ```
 
+Replicating this finding:
+"> One-way ANOVAs followed by post hoc tests with Sidak corrections for multiple comparisons were used to analyze age differences for each trait. These analyses revealed that when attributing both trustworthiness and dominance, 3- to 4-year-olds were less consistent than all other age groups (all ps < .01, ds > 0.59), which exhibited equivalent consistency (all ps > .23, ds < 0.40). Cogsdill et al., page 1134"
+
+Inconsistency 1: When attributing trustworthiness, there was no difference between the consistency of 3-4 year olds and 5-6 year olds. (p=.0465) 
+
+Inconsistency 2: When looking at the consistency of all other groups "which exhibited equivalent consistency (all ps>.23)" for trustworthiness, the 5-6 year olds vs. the 7-10 year olds, p=.0378. I am not sure if this was not marked as significant because of the Sidak correction for multiple comparisons, but it is not greater than .23. 
+
+Inconsistency 3: When looking at the attribute of dominance, the 5-6 year olds were significantly different than the adults (p=.0047) and the 7-10 year olds compared to the adults had a p=.0532, which again is inconsistent with what the authors stated. 
+```{r looking at errors}
+
+#inconsistency 1
+compareValues(reportedValue = .01, obtainedValue = .0465, isP = T)
+#decision error and major numerical error
+
+#inconsistency 2
+compareValues(reportedValue = .23, obtainedValue = .0378, isP = T)
+#decision error and major numerical error
+
+#inconsistency 3
+compareValues(reportedValue = .23, obtainedValue = .0047, isP = T)
+#decision error and major numerical error
+compareValues(reportedValue = .23, obtainedValue = .0532, isP = T)
+#decision error and major numerical error
+
+
+
+```
+
+
+Looking at effect sizes:
+">These analyses revealed that when attributing both trustworthiness and dominance, 3- to 4-year-olds were less consistent than all other age groups (all ps < .01, ds > 0.59), which exhibited equivalent consistency (all ps > .23, ds < 0.40)."
+
+####INSUFFICIENT INFORMATION ERROR 
+
+Here, we run into the same issue we ran into before: without more information about which specific tests were used to calculate "consistency," we would need to engage in "lengthy guesswork" to determine what tests to use - although the authors state that an anova with post-hoc tests with Sidak corrections were used, this test (as far as I am aware) does not yield an effect size, which needs to be calculated separately. Thus, there is insufficient information regarding what statistical tests were used to calculate the effect sizes. 
 
 ## Step 5: Conclusion
 
-[Include the carpsReport function below]
 
 ```{r}
-# You can delete this commented text for your report, it is here to serve as a guide.
-# Use the carpsReport() function in this code chunk.
-# Here is a guide to the arguments you should include in the function:
-# Report_Type: Enter 'pilot' or 'final'
-# Article_ID: Enter the article's unique ID code
-# Insufficient_Information_Errors: Enter the number of Insufficient Information Errors
-# Decision_Errors Enter: the number of decision errors
-# Major_Numerical_Errors: Enter the number of major numerical errors
-# Time_to_Complete: Enter the estimated time to complete the report in minutes
-# Author_Assistance: Enter whether author assistance was required (TRUE/FALSE)
-# FOR EXAMPLE:
-# carpsReport(Report_Type = "pilot", 
-#             Article_ID = "ABhgyo", 
-#             Insufficient_Information_Errors = 0, 
-#             Decision_Errors = 0, 
-#             Major_Numerical_Errors = 0, 
-#             Time_to_Complete = 240, 
-#             Author_Assistance = FALSE)
+
+carpsReport(Report_Type = "pilot", 
+             Article_ID = "CARPS-9-5-2014", 
+             Insufficient_Information_Errors = 3, 
+             Decision_Errors = 3, 
+             Major_Numerical_Errors = 4, 
+             Time_to_Complete = 300, 
+             Author_Assistance = FALSE)
 ```
 
-[Please also include a brief text summary describing your findings. If this reproducibility check was a failure, you should note any suggestions as to what you think the likely cause(s) might be.]
-
-[This function will output information about the package versions used in this report:]
+All of the descriptive findings and figures we attempted to replicate were consistent with the original author's report. The major errors in this paper concerned insufficient information in terms of how "consistency" betweena and across age groups was calculated. Additional errors found were decision errors and major numerical errors in regards to the pooled summaries of differences across groups. 
 
 ```{r session_info, include=TRUE, echo=TRUE, results='markup'}
 devtools::session_info()
