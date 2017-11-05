@@ -69,7 +69,6 @@ library(readxl) # import excel files
 library(CARPSreports) # custom report functions
 library(effsize) #used to calculate effect size
 library(dunn.test)#used to do post hoc comparisons with Sidak's correction
-install.packages("car")
 library(car)
 ```
 
@@ -88,8 +87,6 @@ Want to gather data into age groups for each variable
 ```{r}
 
 dtidy <- select(d, 'Age.Group', 'NICE', 'SMART', 'STRONG') 
-
-summariseCC <- summarise(group_by(CCdataframeordered, Question, add=TRUE), mean = mean(response, na.rm=T), sd=sd(response, na.rm=TRUE), n=n(), se=sd/sqrt(n))
 
 dtidy2 <- dtidy %>%
   gather(Attribute, Rating, -Age.Group)
@@ -146,7 +143,7 @@ ggplot(data=dstrong, aes(x=Age.Group, y=mean, fill=Age.Group)) +
 
 Replicating this finding:
 ">Combined, all four age groups showed significant consensus compared with chance (50%) when identifying faces as...strong or not strong (85%; Fig. 3)... Cogsdill et al., page 1134""
-```{r niceness average}
+```{r niceness average 2}
 
 mean(dtidy$STRONG, na.rm=T)
 
@@ -344,8 +341,6 @@ dunn.test(d$STRONG, d$Age.Group, method="sidak")
 TukeyHSD(aovstrong)
 
 ```
-
-
 
 
 ## Step 5: Conclusion
