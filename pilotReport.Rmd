@@ -6,11 +6,17 @@ output:
     toc_float: true
 ---
 
-#### Article ID: 9-5-2014
-#### Pilot 1: Kari Leibowitz
-#### Co-pilot: Yochai Shavit
-#### Start date: 11/1/17
-#### End date: 11/5/17 
+```{r}
+articleID <- "9-5-2015" # insert the article ID code here e.g., "10-3-2015_PS"
+reportType <- 'pilot'
+pilotNames <- "Kari Leibowitz, Yochai Shavit" # insert the pilot's name here e.g., "Tom Hardwicke". If there are multiple pilots enter both names in a character string e.g., "Tom Hardwicke, Bob Dylan"
+copilotNames <- "" # insert the co-pilot's name here e.g., "Michael Frank". If there are multiple co-pilots enter both names in a character string e.g., "Tom Hardwicke, Bob Dylan"
+pilotTTC <- 300 # insert the pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
+copilotTTC <- NA # insert the co- pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
+pilotStartDate <- as.Date("11/1/17", format = "%m/%d/%y") # insert the pilot's start date in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
+copilotStartDate <- as.Date("", format = "%m/%d/%y") # insert the co-pilot's start date in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
+completionDate <- as.Date("", format = "%m/%d/%y") # copilot insert the date of final report completion (after any necessary rounds of author assistance) in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
+```
 
 -------
 
@@ -59,13 +65,15 @@ library(lsr) #using this to get effect sizes
 library(broom)
 ```
 
+```{r}
+# Prepare report object. This will be updated automatically by the reproCheck function each time values are compared.
+reportObject <- data.frame(dummyRow = TRUE, reportedValue = NA, obtainedValue = NA, valueType = NA, percentageError = NA, comparisonOutcome = NA, eyeballCheck = NA)
+```
+
 ## Step 2: Load data
 
 ```{r}
-#setwd("~/Desktop/251")
-#d<- read.csv("CARPS_9-5-2014_PS/data/Cogsdill_FaceTrait_Experiment1Public_04Feb14.csv")
-d=read_xlsx("Cogsdill_FaceTrait_Experiment1Public_04Feb14.xlsx")
-#head(d)
+d <- read_xlsx("DATA/Cogsdill_FaceTrait_Experiment1Public_04Feb14.xlsx")
 ```
 
 ## Step 3: Tidy data
@@ -88,7 +96,8 @@ summarised <- summarise(group_by(dtidy2, age_grp, Attribute, add=TRUE), mean=mea
 
 #### Figure 2 and associated data: NICE
 
-Here recreating Figure 2, a bar graph of percentage of expected responses for niceness
+Here recreating Figure 2, a bar graph of percentage of expected responses for niceness:
+
 ```{r figure 2}
 
 dnice <- summarised %>%
@@ -107,12 +116,11 @@ fig.2=ggplot(data=dnice, aes(x=age_grp, y=mean, width=0.5)) +
 **Comparing "nice" percentages per group**
 
 *original*
-![](faces_figure2_trBYgroup.png)
+![](img/faces_figure2_trBYgroup.png)
 
 ```{r echo=F}
 print(fig.2)
 ```
-
 
 Replicating this finding:
 
@@ -126,10 +134,6 @@ mean_nice=mean(dtidy$NICE, na.rm=T)
 Mean = `r round(mean_nice*100, 0)`%, consistent with paper's finding
 
 However, **The authors did not report which test they used to come up with the conclusion that this percentage is significantly different from 50%** [INSUFFICIENT INFORMATION error]. 
-
-```{r, echo=F}
-insuf=1
-```
 
 The test that seem to make the most sense to us is a one-sample t-test for the mean percent correct across groups, when subtracting 0.5 from each individual's score. That is because the one-sample test compare a mean against 0 and we want to compare against 0.5 (i.e 50%). We chose to run a two-sided test because the authors do not specify a direction in the analysis they used.
 
@@ -169,7 +173,7 @@ fig.3=ggplot(data=dstrong, aes(x=age_grp, y=mean, width=0.5)) +
 **Comparing "strong" percentages per group**
 
 *original*
-![](faces_figure3_domBYgroup.png)
+![](img/faces_figure3_domBYgroup.png)
 
 ```{r echo=F}
 print(fig.3)
@@ -220,7 +224,7 @@ fig.4=ggplot(data=dsmart, aes(x=age_grp, y=mean, width=0.5)) +
 **Comparing "smart" percentages per group**
 
 *original*
-![](faces_figure4_compBYgroup.png)
+![](img/faces_figure4_compBYgroup.png)
 
 ```{r echo=F}
 print(fig.4)
@@ -341,19 +345,12 @@ All $\chi^2$ goodness-of-fit tests yielded significant results. Our findings are
 
 `r kable(tidy(chi3), digits=3, caption="chi-squre goodness-of-fit test, correct 'strong' responses compared to chance")`
 
-
-
 We then turned to replicate this finding:
 
 > "Critically, all age groups attributed all three traits with significant consensus, ps < .001, ds > 1.08. from Cogsdill et al. page 1134"
 
 
 #####INSUFFICIENT INFORMATION ERROR.
-
-```{r echo=F}
-insuf=insuf+1
-
-```
 
 We attempted to replicate this finding using our best guess of what test to use, but after calculating this realized that this probably entailed "lengthy guesswork" on our part. Thus, we have marked this as an insufficient information error but also included the tests we attempted to run below. 
 
@@ -441,12 +438,9 @@ Our replication efforts revealed that the minimal p-value = `r round(min(p_value
 
 However, the minimal *d* in our replication = `r round(min(ds), 2)` which is larger than the reported minimal cohen's d (1.08).
 
-CARPS report: `r compareValues(reportedValue = 1.08, obtainedValue = 1.41)`
-
-```{r echo=F}
-major_er=1
+```{r}
+reportObject <- reproCheck(reportedValue = "1.08", obtainedValue = 1.41, valueType = 'd')
 ```
-
 
 
 We next turned to replicate this finding:
@@ -463,9 +457,11 @@ anova1=aov(OVERALL ~ age_grp, data=dtidy)
 
 `r kable(tidy(anova1), digits=2, caption="ANOVA to compare group means on overall percent correct")`
 
-We did find one inconsistency in the reported F-statistic's value (a *minor* numerical error).
-CARPS report: `r compareValues(reportedValue = 17.91, obtainedValue = 17.95)`
+We did find one inconsistency in the reported F-statistic's value:
 
+```{r}
+reportObject <- reproCheck(reportedValue = "17.91", obtainedValue = 17.95, valueType = 'F')
+```
 
 We then attempted to replicate this finding:
 
@@ -500,20 +496,31 @@ dunn.test(d$STRONG, d$`Age Group`, method="sidak")
 
 Inconsistency 1: When attributing trustworthiness, we did not find a difference between the consistency of 3-4 year olds and 5-6 year olds. (p=.0465) 
 
-CARPS report: `r compareValues(reportedValue = 0.01, obtainedValue = 0.0465, isP=T)`
+```{r}
+reportObject <- reproCheck(reportedValue = "0.01", obtainedValue = 0.0465, valueType = 'p')
+```
 
 Inconsistency 2: When looking at the consistency of all other groups "which exhibited equivalent consistency (all ps>.23)" for trustworthiness, we found a significant difference between the 5-6 year olds and the 7-10 year olds, p=.0378. 
 >We are not sure if this was not marked as significant because of the Sidak correction for multiple comparisons, but it does not equal 0.23 or greater. 
 
-CARPS report: `r compareValues(reportedValue = 0.23, obtainedValue = 0.0378, isP=T)`
+```{r}
+reportObject <- reproCheck(reportedValue = "0.23", obtainedValue = 0.0378, valueType = 'p')
+```
 
 **Dominance**
 
 Inconsistency 3: When looking at the attribute of dominance, we found that the 5-6 year olds were significantly different than the adults (p=.0047) and that the 7-10 year olds compared to the adults had a p=.0532, which again is inconsistent with what the authors stated. 
 
-*5-6 year olds compared to adults*- CARPS report: `r compareValues(reportedValue = 0.23, obtainedValue = 0.0047, isP=T)`
+*5-6 year olds compared to adults*- 
+```{r}
+reportObject <- reproCheck(reportedValue = "0.23", obtainedValue = 0.0047, valueType = 'p')
+```
 
-*7-10 year olds compared to adults*- CARPS report: `r compareValues(reportedValue = 0.23, obtainedValue = 0.0532, isP=T)`
+*7-10 year olds compared to adults*-
+
+```{r}
+reportObject <- reproCheck(reportedValue = "0.23", obtainedValue = 0.0532, valueType = 'p')
+```
 
 It is unclear to us whether these inconsistencies are a) a result of running this test in R using the 'dunn.test' package as opposed to in another software; b) due to replicator error in calculating or interpreting outputs or; c) indicative of true errors.
 
@@ -522,11 +529,6 @@ Looking at effect sizes:
 > "These analyses revealed that when attributing both trustworthiness and dominance, 3- to 4-year-olds were less consistent than all other age groups (all ps < .01, ds > 0.59), which exhibited equivalent consistency (all ps > .23, ds < 0.40)."
 
 ####INSUFFICIENT INFORMATION ERROR 
-
-```{r}
-insuf=insuf+1
-```
-
 
 Here, we run into the same issue we ran into before: without more information about which specific tests were used to calculate "consistency," we would need to engage in "lengthy guesswork" to determine what tests to use. However, since the authors report effect sizes using Cohen's d, which is the effect size for t-test, and since these effect sizes do not depend on correction of p.values, we proceeded (with caution) to obtain Cohen's d comparing 3-4 year olds means for percent correct on 'trustworthiness' and 'dominance' with those of all other age groups.
 
@@ -571,29 +573,74 @@ ds_other=c(dn_56710, dn_56ad, dn_710ad, dd_56710, dd_56ad, dd_710ad)
 
 We found that The minimal effect size for 3-4 year olds' percent correct vs. that of any other age group's on either trait, is `r round(min(ds_34), 3)`. This effect size is slightly larger than that reported by Cogsdill et al (0.59). However, this does not seem to be a major error.
 
-CARPS report: `r compareValues(reportedValue = 0.59, obtainedValue = 0.602)`
+```{r}
+reportObject <- reproCheck(reportedValue = "0.59", obtainedValue = 0.602, valueType = 'd')
+```
 
 Similarly, we found that the maximal effect size comparing all other age groups to one another is slightly larger- d=`r round(max(ds_other),3)`. However, the authors may have rounded the same value down.
 
-CARPS report: `r compareValues(reportedValue = 0.40, obtainedValue = 0.422)`
-
+```{r}
+reportObject <- reproCheck(reportedValue = "0.40", obtainedValue = 0.422, valueType = 'd')
+```
 
 ## Step 5: Conclusion
 
+All of the descriptive findings and figures we attempted to replicate were consistent with the original author's report. The major errors in this paper concerned insufficient information in terms of how "consistency" betweena and across age groups was calculated. Additional errors found were decision errors and major numerical errors in regards to the pooled summaries of differences across groups. 
 
 ```{r}
+Author_Assistance = FALSE # was author assistance provided? (if so, enter TRUE)
 
-carpsReport(Report_Type = "pilot", 
-             Article_ID = "CARPS-9-5-2014", 
-             Insufficient_Information_Errors = 3, 
-             Decision_Errors = 3, 
-             Major_Numerical_Errors = 4, 
-             Time_to_Complete = 300, 
-             Author_Assistance = FALSE)
+Insufficient_Information_Errors <- 3 # how many discrete insufficient information issues did you encounter?
+
+# Assess the causal locus (discrete reproducibility issues) of any reproducibility errors. Note that there doesn't necessarily have to be a one-to-one correspondance between discrete reproducibility issues and reproducibility errors. For example, it could be that the original article neglects to mention that a Greenhouse-Geisser correct was applied to ANOVA outcomes. This might result in multiple reproducibility errors, but there is a single causal locus (discrete reproducibility issue).
+
+locus_typo <- NA # how many discrete issues did you encounter that related to typographical errors?
+locus_specification <- NA # how many discrete issues did you encounter that related to incomplete, incorrect, or unclear specification of the original analyses?
+locus_analysis <- NA # how many discrete issues did you encounter that related to errors in the authors' original analyses?
+locus_data <- NA # how many discrete issues did you encounter that related to errors in the data files shared by the authors?
+locus_unidentified <- NA # how many discrete issues were there for which you could not identify the cause
+
+Affects_Conclusion <- NA # Do any reproducibility issues encounter appear to affect the conclusions made in the original article? This is a subjective judgement, but you should taking into account multiple factors, such as the presence/absence of decision errors, the number of target outcomes that could not be reproduced, the type of outcomes that could or could not be reproduced, the difference in magnitude of effect sizes, and the predictions of the specific hypothesis under scrutiny.
 ```
 
-All of the descriptive findings and figures we attempted to replicate were consistent with the original author's report. The major errors in this paper concerned insufficient information in terms of how "consistency" betweena and across age groups was calculated. Additional errors found were decision errors and major numerical errors in regards to the pooled summaries of differences across groups. 
+```{r}
+reportObject <- reportObject %>%
+  filter(dummyRow == FALSE) %>% # remove the dummy row
+  select(-dummyRow) %>% # remove dummy row designation
+  mutate(articleID = articleID) %>% # add the articleID 
+  select(articleID, everything()) # make articleID first column
+
+# decide on final outcome
+if(any(reportObject$comparisonOutcome != "MATCH") | Insufficient_Information_Errors > 0){
+  finalOutcome <- "Failure without author assistance"
+  if(Author_Assistance == T){
+    finalOutcome <- "Failure despite author assistance"
+  }
+}else{
+  finalOutcome <- "Success without author assistance"
+  if(Author_Assistance == T){
+    finalOutcome <- "Success with author assistance"
+  }
+}
+
+# collate report extra details
+reportExtras <- data.frame(articleID, pilotNames, copilotNames, pilotTTC, copilotTTC, pilotStartDate, copilotStartDate, completionDate, Author_Assistance, finalOutcome, Insufficient_Information_Errors, locus_typo, locus_specification, locus_analysis, locus_data, locus_unidentified)
+
+# save report objects
+if(reportType == "pilot"){
+  write_csv(reportObject, "pilotReportDetailed.csv")
+  write_csv(reportExtras, "pilotReportExtras.csv")
+}
+
+if(reportType == "final"){
+  write_csv(reportObject, "finalReportDetailed.csv")
+  write_csv(reportExtras, "finalReportExtras.csv")
+}
+```
+
+# Session information
 
 ```{r session_info, include=TRUE, echo=TRUE, results='markup'}
 devtools::session_info()
 ```
+
