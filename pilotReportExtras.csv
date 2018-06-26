@@ -1,2 +1,2 @@
 articleID,pilotNames,copilotNames,pilotTTC,copilotTTC,pilotStartDate,copilotStartDate,completionDate,Author_Assistance,finalOutcome,Insufficient_Information_Errors,locus_typo,locus_specification,locus_analysis,locus_data,locus_unidentified
-9-5-2015,"Kari Leibowitz, Yochai Shavit",,300,NA,2017-11-01,NA,NA,FALSE,Failure without author assistance,3,NA,NA,NA,NA,NA
+9-5-2015,"Kari Leibowitz, Yochai Shavit",Kyle MacDonald,300,240,2017-11-01,2018-06-15,NA,FALSE,Failure without author assistance,3,NA,NA,NA,NA,NA
