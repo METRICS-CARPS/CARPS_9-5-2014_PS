@@ -12,9 +12,9 @@ output:
 articleID <- "9-5-2014" # insert the article ID code here e.g., "10-3-2015_PS"
 reportType <- 'final'
 pilotNames <- "Kari Leibowitz, Yochai Shavit" # insert the pilot's name here e.g., "Tom Hardwicke". If there are multiple pilots enter both names in a character string e.g., "Tom Hardwicke, Bob Dylan"
-copilotNames <- "Kyle MacDonald" # insert the co-pilot's name here e.g., "Michael Frank". If there are multiple co-pilots enter both names in a character string e.g., "Tom Hardwicke, Bob Dylan"
+copilotNames <- "Kyle MacDonald, Tom Hardwicke" # insert the co-pilot's name here e.g., "Michael Frank". If there are multiple co-pilots enter both names in a character string e.g., "Tom Hardwicke, Bob Dylan"
 pilotTTC <- 300 # insert the pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
-copilotTTC <- 240 # insert the co- pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
+copilotTTC <- 420 # insert the co- pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
 pilotStartDate <- as.Date("11/1/17", format = "%m/%d/%y") # insert the pilot's start date in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
 copilotStartDate <- as.Date("6/15/18", format = "%m/%d/%y") # insert the co-pilot's start date in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
 completionDate <- as.Date("", format = "%m/%d/%y") # copilot insert the date of final report completion (after any necessary rounds of author assistance) in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
@@ -24,7 +24,7 @@ completionDate <- as.Date("", format = "%m/%d/%y") # copilot insert the date of 
 
 #### Methods summary: 
 
-In the present study, Cogsdill et al. presented participants in four age groups (3-4 year olds (n=37), 5-6 year olds(n=50), 7-10 year olds (n=54)- tested in lab or at a local museum and adults (n=99, tested online)) with pairs of faces that were pre-determined to be high (+3 s.d) or low (-3 s.d) in three traits: trustworthiness (measured as nice vs. mean), competence (measured as smart vs. not smart), or dominance (measured as strong vs. not strong). For each trait, 3 "high on trait" and 3 "low on trait" faces were selected and each pair consisted of one face was a "high on trait" face and the other a "low on trait" face. All possible 9 iterations were presented to participants in a counter balanced order across traits. The authors assessed the ability of each age group's members to accurately identify which of two faces was high in a particular trait, by asking participants to indicate which of these two people is very nice/strong/smart. The authors were interested in the consistency of judgements across age groups in terms of the ability to "correctly" identify traits of faces based on a pre-determined consensus. 
+In the present study, there were four age groups: 3-4 year olds (n=37), 5-6 year olds(n=50), 7-10 year olds (n=54) - tested in lab or at a local museum - and adults (n=99, tested online). Cogsdill et al. presented participants with pairs of faces that were pre-determined to be high (+3 s.d) or low (-3 s.d) in three traits: trustworthiness (measured as nice vs. mean), competence (measured as smart vs. not smart), or dominance (measured as strong vs. not strong). For each trait, 3 "high on trait" and 3 "low on trait" faces were selected and each pair consisted of one face that was a "high on trait" face and the other a "low on trait" face. All 9 possible iterations were presented to participants in a counter balanced order across traits. The authors assessed the ability of each age group's members to accurately identify which of two faces was high in a particular trait, by asking participants to indicate which of these two people is very nice/strong/smart. The authors were interested in the consistency of judgements across age groups in terms of the ability to "correctly" identify traits of faces based on a pre-determined consensus. 
 
 ------
 
@@ -51,7 +51,6 @@ library(haven) # import and export 'SPSS', 'Stata' and 'SAS' Files
 library(readxl) # import excel files
 library(CARPSreports) # custom report functions
 library(effsize) #used to calculate effect size
-library(dunn.test)#used to do post hoc comparisons with Sidak's correction
 library(car)
 library(lsr) # using this to get effect sizes
 library(broom)
@@ -83,7 +82,7 @@ d_tidy <- d %>% gather(key = attribute, value = rating, nice:smart)
 
 # Step 4: Run analysis
 
-### Descriptive statistics
+## Descriptive statistics
 
 Compute summary statisics for each age group and attribute.
 
@@ -98,7 +97,7 @@ ms <- d_tidy %>%
 ms %>% kable(digits = 2)
 ```
 
-#### Reproduce Figure 2
+### Reproduce Figure 2
 
 ![](img/faces_figure2_trBYgroup.png)
 
@@ -117,13 +116,28 @@ ms %>%
 Add eyeball repro checks for the mean values in Figure 2.
 
 ```{r}
-reportObject <- reproCheck(reportedValue = "0.77", obtainedValue = 0.77, valueType = 'mean', eyeballCheck = TRUE)
-reportObject <- reproCheck(reportedValue = "0.9", obtainedValue = 0.9, valueType = 'mean', eyeballCheck = TRUE)
-reportObject <- reproCheck(reportedValue = "0.95", obtainedValue = 0.95, valueType = 'mean', eyeballCheck = TRUE)
-reportObject <- reproCheck(reportedValue = "0.93", obtainedValue = 0.93, valueType = 'mean', eyeballCheck = TRUE)
+grp34 <- ms %>% filter(attribute == 'nice', age_group == '3-4 year olds') %>% pull(m)
+grp34_sem <- ms %>% filter(attribute == 'nice', age_group == '3-4 year olds') %>% pull(sem)
+reportObject <- reproCheck(reportedValue = "fig", obtainedValue = grp34, valueType = 'mean', eyeballCheck = TRUE)
+reportObject <- reproCheck(reportedValue = "fig", obtainedValue = grp34_sem, valueType = 'se', eyeballCheck = TRUE)
+
+grp56 <- ms %>% filter(attribute == 'nice', age_group == '5-6 year olds') %>% pull(m)
+grp56_sem <- ms %>% filter(attribute == 'nice', age_group == '5-6 year olds') %>% pull(sem)
+reportObject <- reproCheck(reportedValue = "fig", obtainedValue = grp56, valueType = 'mean', eyeballCheck = TRUE)
+reportObject <- reproCheck(reportedValue = "fig", obtainedValue = grp56_sem, valueType = 'se', eyeballCheck = TRUE)
+
+grp710 <- ms %>% filter(attribute == 'nice', age_group == '7-10 year olds') %>% pull(m)
+grp710_sem <- ms %>% filter(attribute == 'nice', age_group == '7-10 year olds') %>% pull(sem)
+reportObject <- reproCheck(reportedValue = "fig", obtainedValue = grp710, valueType = 'mean', eyeballCheck = TRUE)
+reportObject <- reproCheck(reportedValue = "fig", obtainedValue = grp710_sem, valueType = 'se', eyeballCheck = TRUE)
+
+grpAdult <- ms %>% filter(attribute == 'nice', age_group == 'Adults') %>% pull(m)
+grpAdult_sem <- ms %>% filter(attribute == 'nice', age_group == 'Adults') %>% pull(sem)
+reportObject <- reproCheck(reportedValue = "fig", obtainedValue = grpAdult, valueType = 'mean', eyeballCheck = TRUE)
+reportObject <- reproCheck(reportedValue = "fig", obtainedValue = grpAdult_sem, valueType = 'se', eyeballCheck = TRUE)
 ```
 
-Rerpoducing this finding:
+Reproducing this finding:
 
 > "Combined, all four age groups showed significant consensus compared with chance (50%) when identifying faces as mean or nice (93%; Fig. 2)... Cogsdill et al., page 1134"
 
@@ -132,7 +146,7 @@ mean_nice <- d_tidy %>% filter(attribute == "nice") %>% pull(rating) %>% mean()
 reportObject <- reproCheck(reportedValue = "0.93", obtainedValue = mean_nice, valueType = 'mean')
 ```
 
-#### Reproduce Figure 3 
+### Reproduce Figure 3 
 
 ![](img/faces_figure3_domBYgroup.png)
 
@@ -151,10 +165,25 @@ ms %>%
 Add eyeball repro checks for the mean values in Figure 3.
 
 ```{r}
-reportObject <- reproCheck(reportedValue = "0.63", obtainedValue = 0.63, valueType = 'mean', eyeballCheck = TRUE)
-reportObject <- reproCheck(reportedValue = "0.85", obtainedValue = 0.85, valueType = 'mean', eyeballCheck = TRUE)
-reportObject <- reproCheck(reportedValue = "0.85", obtainedValue = 0.85, valueType = 'mean', eyeballCheck = TRUE)
-reportObject <- reproCheck(reportedValue = "0.9", obtainedValue = 0.9, valueType = 'mean', eyeballCheck = TRUE)
+grp34 <- ms %>% filter(attribute == 'strong', age_group == '3-4 year olds') %>% pull(m)
+grp34_sem <- ms %>% filter(attribute == 'strong', age_group == '3-4 year olds') %>% pull(sem)
+reportObject <- reproCheck(reportedValue = "fig", obtainedValue = grp34, valueType = 'mean', eyeballCheck = TRUE)
+reportObject <- reproCheck(reportedValue = "fig", obtainedValue = grp34_sem, valueType = 'se', eyeballCheck = TRUE)
+
+grp56 <- ms %>% filter(attribute == 'strong', age_group == '5-6 year olds') %>% pull(m)
+grp56_sem <- ms %>% filter(attribute == 'strong', age_group == '5-6 year olds') %>% pull(sem)
+reportObject <- reproCheck(reportedValue = "fig", obtainedValue = grp56, valueType = 'mean', eyeballCheck = TRUE)
+reportObject <- reproCheck(reportedValue = "fig", obtainedValue = grp56_sem, valueType = 'se', eyeballCheck = TRUE)
+
+grp710 <- ms %>% filter(attribute == 'strong', age_group == '7-10 year olds') %>% pull(m)
+grp710_sem <- ms %>% filter(attribute == 'strong', age_group == '7-10 year olds') %>% pull(sem)
+reportObject <- reproCheck(reportedValue = "fig", obtainedValue = grp710, valueType = 'mean', eyeballCheck = TRUE)
+reportObject <- reproCheck(reportedValue = "fig", obtainedValue = grp710_sem, valueType = 'se', eyeballCheck = TRUE)
+
+grpAdult <- ms %>% filter(attribute == 'strong', age_group == 'Adults') %>% pull(m)
+grpAdult_sem <- ms %>% filter(attribute == 'strong', age_group == 'Adults') %>% pull(sem)
+reportObject <- reproCheck(reportedValue = "fig", obtainedValue = grpAdult, valueType = 'mean', eyeballCheck = TRUE)
+reportObject <- reproCheck(reportedValue = "fig", obtainedValue = grpAdult_sem, valueType = 'se', eyeballCheck = TRUE)
 ```
 
 Next, we try to reproduce this finding:
@@ -166,7 +195,7 @@ mean_strong <- d_tidy %>% filter(attribute == "strong") %>% pull(rating) %>% mea
 reportObject <- reproCheck(reportedValue = "0.85", obtainedValue = mean_strong, valueType = 'mean')
 ```
 
-#### Reproduce Figure 4
+### Reproduce Figure 4
 
 ![](img/faces_figure4_compBYgroup.png)
 
@@ -185,10 +214,25 @@ ms %>%
 Add eyeball repro checks for the mean values in Figure 3.
 
 ```{r}
-reportObject <- reproCheck(reportedValue = "0.65", obtainedValue = 0.65, valueType = 'mean', eyeballCheck = TRUE)
-reportObject <- reproCheck(reportedValue = "0.65", obtainedValue = 0.65, valueType = 'mean', eyeballCheck = TRUE)
-reportObject <- reproCheck(reportedValue = "0.8", obtainedValue = 0.8, valueType = 'mean', eyeballCheck = TRUE)
-reportObject <- reproCheck(reportedValue = "0.77", obtainedValue = 0.77, valueType = 'mean', eyeballCheck = TRUE)
+grp34 <- ms %>% filter(attribute == 'smart', age_group == '3-4 year olds') %>% pull(m)
+grp34_sem <- ms %>% filter(attribute == 'smart', age_group == '3-4 year olds') %>% pull(sem)
+reportObject <- reproCheck(reportedValue = "fig", obtainedValue = grp34, valueType = 'mean', eyeballCheck = TRUE)
+reportObject <- reproCheck(reportedValue = "fig", obtainedValue = grp34_sem, valueType = 'se', eyeballCheck = TRUE)
+
+grp56 <- ms %>% filter(attribute == 'smart', age_group == '5-6 year olds') %>% pull(m)
+grp56_sem <- ms %>% filter(attribute == 'smart', age_group == '5-6 year olds') %>% pull(sem)
+reportObject <- reproCheck(reportedValue = "fig", obtainedValue = grp56, valueType = 'mean', eyeballCheck = TRUE)
+reportObject <- reproCheck(reportedValue = "fig", obtainedValue = grp56_sem, valueType = 'se', eyeballCheck = TRUE)
+
+grp710 <- ms %>% filter(attribute == 'smart', age_group == '7-10 year olds') %>% pull(m)
+grp710_sem <- ms %>% filter(attribute == 'smart', age_group == '7-10 year olds') %>% pull(sem)
+reportObject <- reproCheck(reportedValue = "fig", obtainedValue = grp710, valueType = 'mean', eyeballCheck = TRUE)
+reportObject <- reproCheck(reportedValue = "fig", obtainedValue = grp710_sem, valueType = 'se', eyeballCheck = TRUE)
+
+grpAdult <- ms %>% filter(attribute == 'smart', age_group == 'Adults') %>% pull(m)
+grpAdult_sem <- ms %>% filter(attribute == 'smart', age_group == 'Adults') %>% pull(sem)
+reportObject <- reproCheck(reportedValue = "fig", obtainedValue = grpAdult, valueType = 'mean', eyeballCheck = TRUE)
+reportObject <- reproCheck(reportedValue = "fig", obtainedValue = grpAdult_sem, valueType = 'se', eyeballCheck = TRUE)
 ```
 
 Next, we try to reproduce this finding:
@@ -200,7 +244,7 @@ mean_smart <- d_tidy %>% filter(attribute == "smart") %>% pull(rating) %>% mean(
 reportObject <- reproCheck(reportedValue = "0.76", obtainedValue = mean_smart, valueType = 'mean')
 ```
 
-#### Check consistency across age groups
+### Check consistency across age groups
 
 > "Although 3- to 4-year-olds responded with robust and adult like consensus (72% across all traits), they were less consistent than 5- to 6-year-olds (81%), 7- to 10-year-olds (88%), and adults (89%). Cogsdill et al., page 1134"
 
@@ -221,15 +265,13 @@ reportObject <- reproCheck(reportedValue = "0.88", obtainedValue =  by_age_ms$m[
 reportObject <- reproCheck(reportedValue = "0.89", obtainedValue =  by_age_ms$m[4], valueType = 'mean')
 ```
 
-### Inferential statistics
+## Inferential statistics
 
-T-tests against chance, reproducing this claim:
+Let's try reproducing this claim:
 
 > "Combined, all four age groups showed significant consensus compared with chance (50%) when identifying faces as mean or nice , strong or not strong, and smart or not smart."
 
-However, the authors did not report which test they used to come up with the conclusion that this percentage is significantly different from 50%. 
-
-**INSUFFICIENT INFORMATION error**
+The authors did not report which test they used to come up with the conclusion that this percentage is significantly different from 50%. This was initially an insufficient information error. We contacted the original authors and they tell us that this was a t-test.
 
 ```{r one-sample t test aginst 0.5 all conditions and age groups}
 # wrapper function for t-test
@@ -237,6 +279,7 @@ t_test_fun <- function(df) {
   m <- t.test(df$rating, mu = 0.5, alternative = "two.sided")
   m %>% broom::glance()
 }
+
 # nest the data for each attribute
 d_by_attr <- d_tidy %>% 
   group_by(attribute) %>% 
@@ -250,44 +293,60 @@ by_attr_t <- d_by_attr %>% unnest(t_test) %>% select(-data)
 by_attr_t %>% kable(digits = 2)
 ```
 
-Exract and check the t-valuea for each attribute.
+Exract and check the t-value for each attribute.
 
 ```{r}
-t_mean <- by_attr_t %>% filter(attribute == "strong") %>% pull(statistic) %>% round(2)
-t_smart <- by_attr_t %>% filter(attribute == "smart") %>% pull(statistic) %>% round(2)
-t_nice <- by_attr_t %>% filter(attribute == "nice") %>% pull(statistic) %>% round(2)
+p_strong <- by_attr_t %>% filter(attribute == "strong") %>% pull(p.value)
+p_smart <- by_attr_t %>% filter(attribute == "smart") %>% pull(p.value)
+p_nice <- by_attr_t %>% filter(attribute == "nice") %>% pull(p.value)
 ```
 
-All groups were significantly different from random responding. Can't check these values because nothing was reported in the paper.
+All groups were significantly different from random responding as reported in the paper. Can't check these values quantitatively because nothing was reported in the paper. Run eyeball checks.
 
-Next, we try to reproduce this test:
+```{r}
+reportObject <- reproCheck(reportedValue = "significant", obtainedValue = p_strong, valueType = 'p', eyeballCheck = TRUE)
+reportObject <- reproCheck(reportedValue = "significant", obtainedValue = p_smart, valueType = 'p', eyeballCheck = TRUE)
+reportObject <- reproCheck(reportedValue = "significant", obtainedValue = p_nice, valueType = 'p', eyeballCheck = TRUE)
+```
+
+Next, we try to reproduce these tests:
 
 > "Critically, all age groups attributed all three traits with significant consensus, ps < .001, ds > 1.08."
 
-**INSUFFICIENT INFORMATION ERROR**
-
-We attempted to replicate this finding using our best guess of what test to use, but after calculating this realized that this probably entailed "lengthy guesswork" on our part. Thus, we have marked this as an insufficient information error but also included the tests we attempted to run below. 
-
-Note: the authors don't specify what analytical test was used to determine consensus across age groups and there is some ambiguity in the phrasing here. We took this to mean that within each age group, ratings for each of the three attributes (nice, smart, strong) were consistent. Some thoughts on how to implement this:
-
-  * In order to examine this, we looked at t tests and effect sizes for the percentage of correct and incorrect identifications using the "overall" variable across all attributes within each age group. However, it is unclear from the manuscript whether this was the correct approach.
-  * We also took an alternative approach, interpreting "consensus" as percent overall greater than 50%. 
-
-Run test:
+Note: the article does not specify what analytical tests used and there is some ambiguity in the phrasing here. Thus this was initially an insufficient information error. However, the authors informed us via e-mail that t-tests were used and the effect size is Cohen's d.
 
 ```{r}
-## test
+# nest the data for each attribute
+d_by_age_and_attr <- d_tidy %>% 
+  group_by(age_group, attribute) %>% 
+  nest()
 
-## repro check values
+# map the t-test function against random responding (0.5) to each attribute
+d_by_age_and_attr <- d_by_age_and_attr %>% 
+  mutate(t_test = purrr::map(data, t_test_fun)) 
 
+by_age_attr_t <- d_by_age_and_attr %>% unnest(t_test) %>% select(-data) %>% mutate(d = 2*statistic/sqrt(parameter))
+by_age_attr_t %>% kable(digits = 2)
 ```
 
+Looks good, all ps < .001, ds > 1.08. Let's run reproCheck:
 
-#### Reproduce ANOVAs
+```{r}
+## repro check values
+for(i in by_age_attr_t$p.value){
+  reportObject <- reproCheck(reportedValue = "ps < .001", obtainedValue = i, valueType = 'p', eyeballCheck = TRUE)
+}
+
+for(i in by_age_attr_t$d){
+  reportObject <- reproCheck(reportedValue = "ds > 1.08", obtainedValue = i, valueType = 'd', eyeballCheck = TRUE)
+}
+```
+
+### Reproduce ANOVAs
 
 We next attempt to reproduce this claim:
 
-> "However, an analysis of variance (ANOVA) revealed a significant main effect of age group, F(3, 236) = 17.91, p < .001. Although 3- to 4-year-olds responded with robust and adult like consensus (72% across all traits), they were less consistent than 5- to 6-year-olds (81%), 7- to 10-year-olds (88%), and adults (89%). "
+> "However, an analysis of variance (ANOVA) revealed a significant main effect of age group, F(3, 236) = 17.91, p < .001"
 
 ```{r}
 anova1 <- d_tidy %>% 
@@ -301,8 +360,13 @@ anova1 %>% kable(digits = 2, caption="ANOVA to compare group means on overall pe
 Add repro check values:
 
 ```{r}
+reportObject <- reproCheck(reportedValue = "3", obtainedValue = anova1$df, valueType = 'df')
+reportObject <- reproCheck(reportedValue = "236", obtainedValue = anova1$df.residual, valueType = 'df')
 reportObject <- reproCheck(reportedValue = "17.91", obtainedValue = anova1$statistic, valueType = 'F')
+reportObject <- reproCheck(reportedValue = "p < .001", obtainedValue = anova1$p.value, valueType = 'p', eyeballCheck = TRUE)
 ```
+
+Major error for the degrees of freedom here, possible typo but cause unknown.
 
 Next, we attempt to reproduce this claim:
 
@@ -310,221 +374,143 @@ Next, we attempt to reproduce this claim:
 
 Note: trustworthiness (measured as nice vs. mean), competence (measured as smart vs. not smart), or dominance (measured as strong vs. not strong)
 
-```{r final anovas}
-fit_anova <- function(df) {
-  m <- aov(rating ~ age_group, data = df)
-  m %>% broom::glance()
-}
+Note: Outcome of ANOVAs is not reported.
 
-d_by_attr <- d_by_attr %>% 
-  mutate(anova_fit = purrr::map(data, fit_anova))
-
-d_anovas <- d_by_attr %>% unnest(anova_fit) %>% select(-data, -t_test)
-d_anovas %>% kable(digits = 2)
-```
-
-Next, we perform the follow-up tests with Sidak correction for multiple comparisons.
-
-```{r dunn tests}
-run_dunn <- function(df) {
-  result <- dunn.test(x = df$rating, g = df$age_group, method = "sidak")
-  tibble(
-    comparison = result$comparisons,
-    z = result$Z,
-    p = result$P,
-    p_adj = result$P.adjusted
-  )
-}
-
-d_by_attr <- d_by_attr %>% 
-  mutate(dunn_fit = purrr::map(data, run_dunn))
-
-ms_dunn <- d_by_attr %>% unnest(dunn_fit)
-ms_dunn %>% kable()
-```
-
-Check p values for just the 3-4 year-olds against the other groups for nice and strong attributes.
+Run follow-up tests and calculate Cohen's d.
 
 ```{r}
-three_four_contrast <- ms_dunn %>% 
-  filter(str_detect(comparison, "3-4 year olds"),
-         attribute %in% c("nice", "strong")) 
+# compare 3-4 year olds to the other three groups for nice (trustworthiness) and check that "all ps < .01, ds > 0.59"
+nice34_56 <- d_tidy %>% filter(attribute == 'nice', age_group %in% c("3-4 year olds", "5-6 year olds"))
+t.out <- pairwise.t.test(nice34_56$rating, nice34_56$age_group, paired = FALSE, p.adjust.method = 'none')
+d <- cohensD(rating ~ age_group, data = nice34_56)
+reportObject <- reproCheck(reportedValue = "ps < .01", obtainedValue = unname(t.out$p.value), valueType = 'p', eyeballCheck = TRUE)
+reportObject <- reproCheck(reportedValue = "ds > 0.59", obtainedValue = d, valueType = 'd', eyeballCheck = TRUE)
 
-three_four_contrast %>% kable(digits = 3)
+nice34_710 <- d_tidy %>% filter(attribute == 'nice', age_group %in% c("3-4 year olds", "7-10 year olds"))
+t.out <- pairwise.t.test(nice34_710$rating, nice34_710$age_group, paired = FALSE, p.adjust.method = 'none')
+d <- cohensD(rating ~ age_group, data = nice34_710)
+reportObject <- reproCheck(reportedValue = "ps < .01", obtainedValue = unname(t.out$p.value), valueType = 'p', eyeballCheck = TRUE)
+reportObject <- reproCheck(reportedValue = "ds > 0.59", obtainedValue = d, valueType = 'd', eyeballCheck = TRUE)
+
+nice34_Adults <- d_tidy %>% filter(attribute == 'nice', age_group %in% c("3-4 year olds", "Adults"))
+t.out <- pairwise.t.test(nice34_Adults$rating, nice34_Adults$age_group, paired = FALSE, p.adjust.method = 'none')
+d <- cohensD(rating ~ age_group, data = nice34_Adults)
+reportObject <- reproCheck(reportedValue = "ps < .01", obtainedValue = unname(t.out$p.value), valueType = 'p', eyeballCheck = TRUE)
+reportObject <- reproCheck(reportedValue = "ds > 0.59", obtainedValue = d, valueType = 'd', eyeballCheck = TRUE)
+
+# compare 5-6 year olds to the other two groups for nice (trustworthiness) and check that "all ps > .23, ds < 0.40"
+nice56_710 <- d_tidy %>% filter(attribute == 'nice', age_group %in% c("5-6 year olds", "7-10 year olds"))
+t.out <- pairwise.t.test(nice56_710$rating, nice56_710$age_group, paired = FALSE, p.adjust.method = 'none')
+d <- cohensD(rating ~ age_group, data = nice56_710)
+reportObject <- reproCheck(reportedValue = "ps > .23", obtainedValue = unname(t.out$p.value), valueType = 'p', eyeballCheck = FALSE)
+reportObject <- reproCheck(reportedValue = "ds < 0.40", obtainedValue = d, valueType = 'd', eyeballCheck = TRUE)
+
+nice56_Adults <- d_tidy %>% filter(attribute == 'nice', age_group %in% c("5-6 year olds", "Adults"))
+t.out <- pairwise.t.test(nice56_Adults$rating, nice56_Adults$age_group, paired = FALSE, p.adjust.method = 'none')
+d <- cohensD(rating ~ age_group, data = nice56_Adults)
+reportObject <- reproCheck(reportedValue = "ps > .23", obtainedValue = unname(t.out$p.value), valueType = 'p', eyeballCheck = TRUE)
+reportObject <- reproCheck(reportedValue = "ds < 0.40", obtainedValue = d, valueType = 'd', eyeballCheck = TRUE)
+
+# compare 7-10 year olds to the adult group for nice (trustworthiness) and check that "all ps > .23, ds < 0.40"
+nice710_Adults <- d_tidy %>% filter(attribute == 'nice', age_group %in% c("7-10 year olds", "Adults"))
+t.out <- pairwise.t.test(nice710_Adults$rating, nice710_Adults$age_group, paired = FALSE, p.adjust.method = 'none')
+d <- cohensD(rating ~ age_group, data = nice710_Adults)
+reportObject <- reproCheck(reportedValue = "ps > .23", obtainedValue = unname(t.out$p.value), valueType = 'p', eyeballCheck = TRUE)
+reportObject <- reproCheck(reportedValue = "ds < 0.40", obtainedValue = d, valueType = 'd', eyeballCheck = TRUE)
 ```
-
-Extract the largest adjusted p-value to compare against the reported threshold of $p <. 01$.
 
 ```{r}
-three_four_contr_p <- three_four_contrast %>% pull(p_adj) %>% max()
-reportObject <- reproCheck(reportedValue = "< 0.01", obtainedValue = three_four_contr_p, valueType = 'p', 
-                           eyeballCheck = FALSE)
+# compare 3-4 year olds to the other three groups for dominance (strong) and check that "all ps < .01, ds > 0.59"
+strong34_56 <- d_tidy %>% filter(attribute == 'strong', age_group %in% c("3-4 year olds", "5-6 year olds"))
+t.out <- pairwise.t.test(strong34_56$rating, strong34_56$age_group, paired = FALSE, p.adjust.method = 'none')
+d <- cohensD(rating ~ age_group, data = strong34_56)
+reportObject <- reproCheck(reportedValue = "ps < .01", obtainedValue = unname(t.out$p.value), valueType = 'p', eyeballCheck = TRUE)
+reportObject <- reproCheck(reportedValue = "ds > 0.59", obtainedValue = d, valueType = 'd', eyeballCheck = TRUE)
+
+strong34_710 <- d_tidy %>% filter(attribute == 'strong', age_group %in% c("3-4 year olds", "7-10 year olds"))
+t.out <- pairwise.t.test(strong34_710$rating, strong34_710$age_group, paired = FALSE, p.adjust.method = 'none')
+d <- cohensD(rating ~ age_group, data = strong34_710)
+reportObject <- reproCheck(reportedValue = "ps < .01", obtainedValue = unname(t.out$p.value), valueType = 'p', eyeballCheck = TRUE)
+reportObject <- reproCheck(reportedValue = "ds > 0.59", obtainedValue = d, valueType = 'd', eyeballCheck = TRUE)
+
+strong34_Adults <- d_tidy %>% filter(attribute == 'strong', age_group %in% c("3-4 year olds", "Adults"))
+t.out <- pairwise.t.test(strong34_Adults$rating, strong34_Adults$age_group, paired = FALSE, p.adjust.method = 'none')
+d <- cohensD(rating ~ age_group, data = strong34_Adults)
+reportObject <- reproCheck(reportedValue = "ps < .01", obtainedValue = unname(t.out$p.value), valueType = 'p', eyeballCheck = TRUE)
+reportObject <- reproCheck(reportedValue = "ds > 0.59", obtainedValue = d, valueType = 'd', eyeballCheck = TRUE)
+
+# compare 5-6 year olds to the other two groups for dominance (strong) and check that "all ps > .23, ds < 0.40"
+strong56_710 <- d_tidy %>% filter(attribute == 'strong', age_group %in% c("5-6 year olds", "7-10 year olds"))
+t.out <- pairwise.t.test(strong56_710$rating, strong56_710$age_group, paired = FALSE, p.adjust.method = 'none')
+d <- cohensD(rating ~ age_group, data = strong56_710)
+reportObject <- reproCheck(reportedValue = "ps > .23", obtainedValue = unname(t.out$p.value), valueType = 'p', eyeballCheck = TRUE)
+reportObject <- reproCheck(reportedValue = "ds < 0.40", obtainedValue = d, valueType = 'd', eyeballCheck = TRUE)
+
+strong56_Adults <- d_tidy %>% filter(attribute == 'strong', age_group %in% c("5-6 year olds", "Adults"))
+t.out <- pairwise.t.test(strong56_Adults$rating, strong56_Adults$age_group, paired = FALSE, p.adjust.method = 'none')
+d <- cohensD(rating ~ age_group, data = strong56_Adults)
+reportObject <- reproCheck(reportedValue = "ps > .23", obtainedValue = unname(t.out$p.value), valueType = 'p', eyeballCheck = FALSE)
 ```
 
-Next, we try to reproduce this claim:
-
-> all other age groups ... which exhibited equivalent consistency (all ps > .23, ds < 0.40)."
-
-We filter the dunn tests to remove comparisons using the 3-4 year-olds and then compare the smallest p-value to the reported threshold.
+NOTE THIS APPEARS TO BE A DECISION ERROR.
 
 ```{r}
-other_groups_contrast <- ms_dunn %>% 
-  filter(!(str_detect(comparison, "3-4 year olds")),
-         attribute %in% c("nice", "strong")) 
+reportObject <- reproCheck(reportedValue = "ds < 0.40", obtainedValue = d, valueType = 'd', eyeballCheck = TRUE) # NOTE - although the obtained t is not below 0.40, it is only a minor numerical error so it passess the eyeball check
 
-other_groups_contrast %>% kable(digits = 3)
+# compare 7-10 year olds to the adult group for dominance (strong) and check that "all ps > .23, ds < 0.40"
+strong710_Adults <- d_tidy %>% filter(attribute == 'strong', age_group %in% c("7-10 year olds", "Adults"))
+t.out <- pairwise.t.test(strong710_Adults$rating, strong710_Adults$age_group, paired = FALSE, p.adjust.method = 'none')
+d <- cohensD(rating ~ age_group, data = strong710_Adults)
+reportObject <- reproCheck(reportedValue = "ps > .23", obtainedValue = unname(t.out$p.value), valueType = 'p', eyeballCheck = FALSE)
 ```
 
-Extract the p-values that are below the stated threshold in the paper ($p > 0.23$).
+NOTE THIS APPEARS TO BE A DECISION ERROR.
 
 ```{r}
-nice_five_seven <- other_groups_contrast %>%  pull(p_adj) %>% .[1]
-strong_five_adults <- other_groups_contrast %>%  pull(p_adj) %>% .[5]
-strong_seven_adults <- other_groups_contrast %>%  pull(p_adj) %>% .[6]
-
-# add repro checks
-reportObject <- reproCheck(reportedValue = "p > 0.23", obtainedValue = nice_five_seven, 
-                           valueType = 'p', eyeballCheck = FALSE)
-reportObject <- reproCheck(reportedValue = "p > 0.23", obtainedValue = strong_five_adults, 
-                           valueType = 'p', eyeballCheck = FALSE)
-reportObject <- reproCheck(reportedValue = "p > 0.23", obtainedValue = strong_seven_adults, 
-                           valueType = 'p', eyeballCheck = FALSE)
+reportObject <- reproCheck(reportedValue = "ds < 0.40", obtainedValue = d, valueType = 'd', eyeballCheck = TRUE) # NOTE - although the obtained d is not below 0.40, it is only a minor numerical error so it passess the eyeball check
 ```
 
-#### Reproduce effect sizes
+There were some major numerical errors for 3 p-values here, two of which were decision errors. Note that the article says that there were "Sidak corrections for multiple comparisons". Such corrections should be applied to the alpha threshold rather than directly to p-values, but it is possible they were applied to p-values in this case, which could explain the differences. It is not possible to try and emulate this process because the family of tests to which the corrections apply is not defined. If we try applying Sidak corrections to p-values based on all of the post-hoc tests then some p-values match but others that previously matched do not match anymore.
 
-> "These analyses revealed that when attributing both trustworthiness and dominance, 3- to 4-year-olds were less consistent than all other age groups (all ps < .01, ds > 0.59), which exhibited equivalent consistency (all ps > .23, ds < 0.40)."
-
-**INSUFFICIENT INFORMATION ERROR**
-
-Here, we run into the same issue we ran into before: without more information about which specific tests were used. However, since the authors report effect sizes using Cohen's d, which is the effect size for t-test, and since these effect sizes do not depend on correction of p.values, we proceeded (with caution) to obtain Cohen's d comparing 3-4 year olds means for percent correct on 'trustworthiness' and 'dominance' with those of all other age groups.
-
-```{r effect sizes}
-est_coh_d <- function(df) {
-  cohensD(rating ~ age_group, data = df)  
-}
-nest_compute_coh_d <- function(df) {
-  d_by_attr <- df %>% 
-    group_by(attribute) %>% 
-    nest()
-  
-  d_by_attr %>% 
-    mutate(
-      eff_size = purrr::map(data, est_coh_d)
-    ) %>% 
-    unnest(eff_size) %>% 
-    select(-data)
-}
-
-df_eff_size <- d_tidy %>%
-  filter(age_group %in% c("3-4 year olds", "5-6 year olds")) %>% 
-  nest_compute_coh_d() %>% 
-  mutate(comparison = "3-4 vs. 5-6")
-
-df_eff_size <- d_tidy %>%
-  filter(age_group %in% c("3-4 year olds", "7-10 year olds")) %>% 
-  nest_compute_coh_d() %>% 
-  mutate(comparison = "3-4 vs. 7-10") %>% 
-  bind_rows(df_eff_size)
-
-df_eff_size <- d_tidy %>%
-  filter(age_group %in% c("3-4 year olds", "Adults")) %>% 
-  nest_compute_coh_d() %>% 
-  mutate(comparison = "3-4 vs. Adults") %>% 
-  bind_rows(df_eff_size)
-
-df_eff_size %>% kable(caption = "Effect sizes for 3-4 year-olds compared to other age groups")
-```
-
-Get smallest effect size (just for trustworthiness and dominance) and compare to stated threshold $ds > 0.59$. 
-
-```{r}
-min_eff_size <- df_eff_size %>%
-  filter(attribute %in% c("strong", "nice")) %>% 
-  pull(eff_size) %>% 
-  min()
-
-reportObject <- reproCheck(reportedValue = "> 0.59", obtainedValue = min_eff_size, valueType = 'd',
-                           eyeballCheck = TRUE)
-```
-
-Next, we try to reproduce the effect sizes for all other group comparisons and compare against the reported threshold $ds < 0.40$.
-
-```{r}
-df_eff_size_other <- d_tidy %>%
-  filter(age_group %in% c("5-6 year olds", "7-10 year olds")) %>% 
-  nest_compute_coh_d() %>% 
-  mutate(comparison = "5-6 vs. 7-10")
-
-df_eff_size_other <- d_tidy %>%
-  filter(age_group %in% c("5-6 year olds", "Adults")) %>% 
-  nest_compute_coh_d() %>% 
-  mutate(comparison = "5-6 vs. Adults") %>% 
-  bind_rows(df_eff_size_other)
-
-df_eff_size_other <- d_tidy %>%
-  filter(age_group %in% c("7-10 year olds", "Adults")) %>% 
-  nest_compute_coh_d() %>% 
-  mutate(comparison = "7-10 vs. Adults") %>% 
-  bind_rows(df_eff_size_other)
-
-df_eff_size_other %>% kable(caption = "Effect sizes for all other group comparisons")
-```
-
-Get smallest effect size (just for trustworthiness and dominance) and compare to stated threshold $ds < 0.40$. 
-
-```{r}
-max_eff_size <- df_eff_size_other %>%
-  filter(attribute %in% c("strong", "nice")) %>% 
-  pull(eff_size) %>% 
-  max()
-
-reportObject <- reproCheck(reportedValue = "0.40", obtainedValue = max_eff_size, valueType = 'd')
-```
-
-The largest effect size for all other group comparisions is slightly larger than that reported in the paper. But this is a minor numerical error.
+Therefore we are recording an INSUFFICIENT INFORMATION ERROR.
 
 # Step 5: Conclusion
 
-We were able to reproduce the descriptive statistics and the three key figures. But there were four insufficient information errors that prevented a full reproducbility check: 
+We were initially able to reproduce the descriptive statistics and the three key figures. But there were four insufficient information errors that prevented a full reproducbility check: 
 
   * the statistical test used to compare against chance responding
   * the statistical test used to test for similar consensus across age groups
   * the exact comparisons that were included in the claim about groups showing "similar consistency"
   * the measure of effect size that was used
+  
+The contacted the original authors for assistance and they provided some additional information about the analyses specifications that resolved some issues.
 
-In addition, we were unable to reproduce several statistical results related to the following claim (see the reportObject for more inf:
+However, we are still having difficulties with the section reporting post-hoc comparisons. There were three major errors for p-values, two of which are decision errors. The authors report using 'Sidak corrections' but such corrections should be applied to the alpha threshold, not p-values themselves. If corrections were applied to p values, then this could potentially explain the differences, but the article does not state what the family of hypotheses for which corrections were applied.
 
-> These analyses revealed that when attributing both trustworthiness and dominance, 3- to 4-year-olds were less consistent than all other age groups (all ps < .01, ds > 0.59), which exhibited equivalent consistency (all ps > .23, ds < 0.40).
+Additionally, for one degree of freedom, we obtained 4 whereas the article reports 3. This may be a typo but the cause is not clear.
 
-Specifically, we found:
-
-  * a 3-4 year-old age group comparison where $p > .01$, which represents a decision error (false positive)
-  * three "other" age group comparisons where $p < .05$, which represent decision errors (false negatives)
-
-Finally, we found minor numerical differences in our estimates of effect sizes, which are probably caused by computational differences in software or typos. 
 
 ```{r}
-Author_Assistance = FALSE # was author assistance provided? (if so, enter TRUE)
+Author_Assistance = TRUE # was author assistance provided? (if so, enter TRUE)
 
-Insufficient_Information_Errors <- 3 # how many discrete insufficient information issues did you encounter?
+Insufficient_Information_Errors <- 1 # how many discrete insufficient information issues did you encounter?
 
 # Assess the causal locus (discrete reproducibility issues) of any reproducibility errors. Note that there doesn't necessarily have to be a one-to-one correspondance between discrete reproducibility issues and reproducibility errors. For example, it could be that the original article neglects to mention that a Greenhouse-Geisser correct was applied to ANOVA outcomes. This might result in multiple reproducibility errors, but there is a single causal locus (discrete reproducibility issue).
 
-locus_typo <- NA # how many discrete issues did you encounter that related to typographical errors?
-locus_specification <- NA # how many discrete issues did you encounter that related to incomplete, incorrect, or unclear specification of the original analyses?
-locus_analysis <- NA # how many discrete issues did you encounter that related to errors in the authors' original analyses?
-locus_data <- NA # how many discrete issues did you encounter that related to errors in the data files shared by the authors?
-locus_unidentified <- NA # how many discrete issues were there for which you could not identify the cause
+locus_typo <- 0 # how many discrete issues did you encounter that related to typographical errors?
+locus_specification <- 1 # how many discrete issues did you encounter that related to incomplete, incorrect, or unclear specification of the original analyses?
+locus_analysis <- 0 # how many discrete issues did you encounter that related to errors in the authors' original analyses?
+locus_data <- 0 # how many discrete issues did you encounter that related to errors in the data files shared by the authors?
+locus_unidentified <- 2 # how many discrete issues were there for which you could not identify the cause
 
 # How many of the above issues were resolved through author assistance?
-locus_typo_resolved <- NA # how many discrete issues did you encounter that related to typographical errors?
-locus_specification_resolved <- NA # how many discrete issues did you encounter that related to incomplete, incorrect, or unclear specification of the original analyses?
-locus_analysis_resolved <- NA # how many discrete issues did you encounter that related to errors in the authors' original analyses?
-locus_data_resolved <- NA # how many discrete issues did you encounter that related to errors in the data files shared by the authors?
-locus_unidentified_resolved <- NA # how many discrete issues were there for which you could not identify the cause
+locus_typo_resolved <- 0 # how many discrete issues did you encounter that related to typographical errors?
+locus_specification_resolved <- 3 # how many discrete issues did you encounter that related to incomplete, incorrect, or unclear specification of the original analyses?
+locus_analysis_resolved <- 0 # how many discrete issues did you encounter that related to errors in the authors' original analyses?
+locus_data_resolved <- 0 # how many discrete issues did you encounter that related to errors in the data files shared by the authors?
+locus_unidentified_resolved <- 0 # how many discrete issues were there for which you could not identify the cause
 
-Affects_Conclusion <- NA # Do any reproducibility issues encounter appear to affect the conclusions made in the original article? This is a subjective judgement, but you should taking into account multiple factors, such as the presence/absence of decision errors, the number of target outcomes that could not be reproduced, the type of outcomes that could or could not be reproduced, the difference in magnitude of effect sizes, and the predictions of the specific hypothesis under scrutiny.
+Affects_Conclusion <- "Possibly" # Do any reproducibility issues encounter appear to affect the conclusions made in the original article? This is a subjective judgement, but you should taking into account multiple factors, such as the presence/absence of decision errors, the number of target outcomes that could not be reproduced, the type of outcomes that could or could not be reproduced, the difference in magnitude of effect sizes, and the predictions of the specific hypothesis under scrutiny.
 ```
 
 ```{r}
