@@ -14,10 +14,10 @@ reportType <- 'final'
 pilotNames <- "Kari Leibowitz, Yochai Shavit" # insert the pilot's name here e.g., "Tom Hardwicke". If there are multiple pilots enter both names in a character string e.g., "Tom Hardwicke, Bob Dylan"
 copilotNames <- "Kyle MacDonald, Tom Hardwicke" # insert the co-pilot's name here e.g., "Michael Frank". If there are multiple co-pilots enter both names in a character string e.g., "Tom Hardwicke, Bob Dylan"
 pilotTTC <- 300 # insert the pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
-copilotTTC <- 420 # insert the co- pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
+copilotTTC <- 450 # insert the co- pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
 pilotStartDate <- as.Date("11/1/17", format = "%m/%d/%y") # insert the pilot's start date in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
 copilotStartDate <- as.Date("6/15/18", format = "%m/%d/%y") # insert the co-pilot's start date in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
-completionDate <- as.Date("", format = "%m/%d/%y") # copilot insert the date of final report completion (after any necessary rounds of author assistance) in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
+completionDate <- as.Date("09/07/18", format = "%m/%d/%y") # copilot insert the date of final report completion (after any necessary rounds of author assistance) in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
 ```
 
 -------
@@ -376,6 +376,10 @@ Note: trustworthiness (measured as nice vs. mean), competence (measured as smart
 
 Note: Outcome of ANOVAs is not reported.
 
+Note: We do not have sufficient information to run this analysis completely. Specifically, it is unclear how the Sidak corrections were applied because it is unclear what the family of hypothesis tests was. As we cannot adjust the alpha threshold, we cannot determine if there were decision errors. However, we can compare the obtained p values to the reported p values. So below we will check the corresondance of the reported ps and ds with the reported threshold, but we will not draw conclusions about decision errors.
+
+INSUFFICIENT INFORMATION ERROR.
+
 Run follow-up tests and calculate Cohen's d.
 
 ```{r}
@@ -452,7 +456,7 @@ d <- cohensD(rating ~ age_group, data = strong56_Adults)
 reportObject <- reproCheck(reportedValue = "ps > .23", obtainedValue = unname(t.out$p.value), valueType = 'p', eyeballCheck = FALSE)
 ```
 
-NOTE THIS APPEARS TO BE A DECISION ERROR.
+Note: This could be a decision error but we cannot determine that because we do not have sufficient information to apply the Sidak corrections.
 
 ```{r}
 reportObject <- reproCheck(reportedValue = "ds < 0.40", obtainedValue = d, valueType = 'd', eyeballCheck = TRUE) # NOTE - although the obtained t is not below 0.40, it is only a minor numerical error so it passess the eyeball check
@@ -464,15 +468,13 @@ d <- cohensD(rating ~ age_group, data = strong710_Adults)
 reportObject <- reproCheck(reportedValue = "ps > .23", obtainedValue = unname(t.out$p.value), valueType = 'p', eyeballCheck = FALSE)
 ```
 
-NOTE THIS APPEARS TO BE A DECISION ERROR.
+Note: This could be a decision error but we cannot determine that because we do not have sufficient information to apply the Sidak corrections.
 
 ```{r}
 reportObject <- reproCheck(reportedValue = "ds < 0.40", obtainedValue = d, valueType = 'd', eyeballCheck = TRUE) # NOTE - although the obtained d is not below 0.40, it is only a minor numerical error so it passess the eyeball check
 ```
 
-There were some major numerical errors for 3 p-values here, two of which were decision errors. Note that the article says that there were "Sidak corrections for multiple comparisons". Such corrections should be applied to the alpha threshold rather than directly to p-values, but it is possible they were applied to p-values in this case, which could explain the differences. It is not possible to try and emulate this process because the family of tests to which the corrections apply is not defined. If we try applying Sidak corrections to p-values based on all of the post-hoc tests then some p-values match but others that previously matched do not match anymore.
-
-Therefore we are recording an INSUFFICIENT INFORMATION ERROR.
+There were some major numerical errors for 3 p-values here. Note that the article says that there were "Sidak corrections for multiple comparisons". Such corrections should be applied to the alpha threshold rather than directly to p-values, but it is possible they were applied to p-values in this case, which could explain the differences. It is not possible to try and emulate this process because the family of tests to which the corrections apply is not defined. If we try applying Sidak corrections to p-values based on all of the post-hoc tests then some p-values match but others that previously matched do not match anymore. We have assumed that the Sidak corrections were correctly applied to the alpha threshold (rather than p-values), in which case we have major errors for some p values, but cannot determine whether they are decision errors because we do not have sufficient information to correct the alpha threshold.
 
 # Step 5: Conclusion
 
@@ -483,9 +485,9 @@ We were initially able to reproduce the descriptive statistics and the three key
   * the exact comparisons that were included in the claim about groups showing "similar consistency"
   * the measure of effect size that was used
   
-The contacted the original authors for assistance and they provided some additional information about the analyses specifications that resolved some issues.
+We contacted the original authors for assistance and they provided some additional information about the analyses specifications that resolved some issues.
 
-However, we are still having difficulties with the section reporting post-hoc comparisons. There were three major errors for p-values, two of which are decision errors. The authors report using 'Sidak corrections' but such corrections should be applied to the alpha threshold, not p-values themselves. If corrections were applied to p values, then this could potentially explain the differences, but the article does not state what the family of hypotheses for which corrections were applied.
+However, we are still having difficulties with the section reporting post-hoc comparisons. There were three major errors for p-values. The authors report using 'Sidak corrections' and it is unclear if they were applied to the alpha threshold (correctly) or the p-values themselves. If corrections were applied to p values, then this could potentially explain the differences, but the article does not state what the family of hypotheses for which corrections were applied. So we also cannot correct the alpha threshold. We have decided to report the major errors for p values, but record an insufficient information error that prevents us determining whether these were decision errors or not. The original author we were in contact with indicated that they could not help further.
 
 Additionally, for one degree of freedom, we obtained 4 whereas the article reports 3. This may be a typo but the cause is not clear.
 
@@ -498,10 +500,10 @@ Insufficient_Information_Errors <- 1 # how many discrete insufficient informatio
 # Assess the causal locus (discrete reproducibility issues) of any reproducibility errors. Note that there doesn't necessarily have to be a one-to-one correspondance between discrete reproducibility issues and reproducibility errors. For example, it could be that the original article neglects to mention that a Greenhouse-Geisser correct was applied to ANOVA outcomes. This might result in multiple reproducibility errors, but there is a single causal locus (discrete reproducibility issue).
 
 locus_typo <- 0 # how many discrete issues did you encounter that related to typographical errors?
-locus_specification <- 1 # how many discrete issues did you encounter that related to incomplete, incorrect, or unclear specification of the original analyses?
+locus_specification <- 4 # how many discrete issues did you encounter that related to incomplete, incorrect, or unclear specification of the original analyses?
 locus_analysis <- 0 # how many discrete issues did you encounter that related to errors in the authors' original analyses?
 locus_data <- 0 # how many discrete issues did you encounter that related to errors in the data files shared by the authors?
-locus_unidentified <- 2 # how many discrete issues were there for which you could not identify the cause
+locus_unidentified <- 0 # how many discrete issues were there for which you could not identify the cause
 
 # How many of the above issues were resolved through author assistance?
 locus_typo_resolved <- 0 # how many discrete issues did you encounter that related to typographical errors?
@@ -510,7 +512,7 @@ locus_analysis_resolved <- 0 # how many discrete issues did you encounter that r
 locus_data_resolved <- 0 # how many discrete issues did you encounter that related to errors in the data files shared by the authors?
 locus_unidentified_resolved <- 0 # how many discrete issues were there for which you could not identify the cause
 
-Affects_Conclusion <- "Possibly" # Do any reproducibility issues encounter appear to affect the conclusions made in the original article? This is a subjective judgement, but you should taking into account multiple factors, such as the presence/absence of decision errors, the number of target outcomes that could not be reproduced, the type of outcomes that could or could not be reproduced, the difference in magnitude of effect sizes, and the predictions of the specific hypothesis under scrutiny.
+Affects_Conclusion <- "Unclear" # Do any reproducibility issues encounter appear to affect the conclusions made in the original article? This is a subjective judgement, but you should taking into account multiple factors, such as the presence/absence of decision errors, the number of target outcomes that could not be reproduced, the type of outcomes that could or could not be reproduced, the difference in magnitude of effect sizes, and the predictions of the specific hypothesis under scrutiny.
 ```
 
 ```{r}
