@@ -1,2 +1,2 @@
 articleID,pilotNames,copilotNames,pilotTTC,copilotTTC,pilotStartDate,copilotStartDate,completionDate,Author_Assistance,finalOutcome,Insufficient_Information_Errors,locus_typo,locus_specification,locus_analysis,locus_data,locus_unidentified,locus_typo_resolved,locus_specification_resolved,locus_analysis_resolved,locus_data_resolved,locus_unidentified_resolved
-9-5-2014,"Kari Leibowitz, Yochai Shavit","Kyle MacDonald, Tom Hardwicke",300,450,2017-11-01,2018-06-15,2018-09-07,TRUE,Failure despite author assistance,1,0,4,0,0,0,0,3,0,0,0
+9-5-2014_PS,"Kari Leibowitz, Yochai Shavit","Kyle MacDonald, Tom Hardwicke",300,450,2017-11-01,2018-06-15,2018-09-07,TRUE,Failure despite author assistance,1,0,4,0,0,0,0,3,0,0,0
