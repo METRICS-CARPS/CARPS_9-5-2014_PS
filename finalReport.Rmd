@@ -49,7 +49,7 @@ library(tidyverse) # for data munging
 library(knitr) # for kable table formating
 library(haven) # import and export 'SPSS', 'Stata' and 'SAS' Files
 library(readxl) # import excel files
-library(CARPSreports) # custom report functions
+library(ReproReports) # custom report functions
 library(effsize) #used to calculate effect size
 library(car)
 library(lsr) # using this to get effect sizes
@@ -491,7 +491,6 @@ However, we are still having difficulties with the section reporting post-hoc co
 
 Additionally, for one degree of freedom, we obtained 4 whereas the article reports 3. This may be a typo but the cause is not clear.
 
-
 ```{r}
 Author_Assistance = TRUE # was author assistance provided? (if so, enter TRUE)
 
@@ -503,7 +502,7 @@ locus_typo <- 0 # how many discrete issues did you encounter that related to typ
 locus_specification <- 4 # how many discrete issues did you encounter that related to incomplete, incorrect, or unclear specification of the original analyses?
 locus_analysis <- 0 # how many discrete issues did you encounter that related to errors in the authors' original analyses?
 locus_data <- 0 # how many discrete issues did you encounter that related to errors in the data files shared by the authors?
-locus_unidentified <- 0 # how many discrete issues were there for which you could not identify the cause
+locus_unidentified <- 1 # how many discrete issues were there for which you could not identify the cause
 
 # How many of the above issues were resolved through author assistance?
 locus_typo_resolved <- 0 # how many discrete issues did you encounter that related to typographical errors?
@@ -523,7 +522,7 @@ reportObject <- reportObject %>%
   select(articleID, everything()) # make articleID first column
 
 # decide on final outcome
-if(any(reportObject$comparisonOutcome %in% c("MAJOR_ERROR", "DECISION_ERROR")) | Insufficient_Information_Errors > 0){
+if(any(!(reportObject$comparisonOutcome %in% c("MATCH", "MINOR_ERROR"))) | Insufficient_Information_Errors > 0){
   finalOutcome <- "Failure without author assistance"
   if(Author_Assistance == T){
     finalOutcome <- "Failure despite author assistance"
