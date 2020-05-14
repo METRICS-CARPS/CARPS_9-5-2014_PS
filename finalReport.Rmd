@@ -478,7 +478,7 @@ There were some major numerical errors for 3 p-values here. Note that the articl
 
 # Step 5: Conclusion
 
-We were initially able to reproduce the descriptive statistics and the three key figures. But there were four insufficient information errors that prevented a full reproducbility check: 
+We were initially able to reproduce the descriptive statistics and the three key figures. But there were four insufficient information errors that prevented a full reproducibility check: 
 
   * the statistical test used to compare against chance responding
   * the statistical test used to test for similar consensus across age groups
@@ -487,7 +487,7 @@ We were initially able to reproduce the descriptive statistics and the three key
   
 We contacted the original authors for assistance and they provided some additional information about the analyses specifications that resolved some issues.
 
-However, we are still having difficulties with the section reporting post-hoc comparisons. There were three major errors for p-values. The authors report using 'Sidak corrections' and it is unclear if they were applied to the alpha threshold (correctly) or the p-values themselves. If corrections were applied to p values, then this could potentially explain the differences, but the article does not state what the family of hypotheses for which corrections were applied. So we also cannot correct the alpha threshold. We have decided to report the major errors for p values, but record an insufficient information error that prevents us determining whether these were decision errors or not. The original author we were in contact with indicated that they could not help further.
+However, we are still having difficulties with the section reporting post-hoc comparisons. There were three major errors for p-values. The authors report using 'Sidak corrections' and it is unclear if they were applied to the alpha threshold (correctly) or the p-values themselves. If corrections were applied to p values, then this could potentially explain the differences, but the article does not identify the family of hypotheses for which corrections were applied. So we also cannot correct the alpha threshold. We have decided to report the major errors for p values, but record an insufficient information error that prevents us determining whether these were decision errors or not.
 
 Additionally, for one degree of freedom, we obtained 4 whereas the article reports 3. This may be a typo but the cause is not clear.
 
