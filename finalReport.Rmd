@@ -277,7 +277,7 @@ The authors did not report which test they used to come up with the conclusion t
 # wrapper function for t-test
 t_test_fun <- function(df) {
   m <- t.test(df$rating, mu = 0.5, alternative = "two.sided")
-  m %>% broom::glance()
+  m %>% broom::glance() %>% mutate(d.z = cohensD(df$rating, mu = 0.5))
 }
 
 # nest the data for each attribute
