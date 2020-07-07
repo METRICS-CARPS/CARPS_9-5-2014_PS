@@ -329,7 +329,9 @@ by_age_attr_t <- d_by_age_and_attr %>% unnest(t_test) %>% select(-data) %>% muta
 by_age_attr_t %>% kable(digits = 2)
 ```
 
-Looks good, all ps < .001, ds > 1.08. Let's run reproCheck:
+Note that because the effects are within each age group, the appropriate effect size should be Cohen's dz not Cohen's d (see Lakens, 2013; https://doi.org/10.3389/fpsyg.2013.00863). For Cohen's dz, some values fall below the 1.08 threshold reported in the paper. However, the purpose of our project is not to identify problematic analyses, but to see if repeating the original analyses successfully reproduces the reported values. Calculating a Cohen's d for a between-subjects design yields a minimum value of 1.08 - exactly the threshold reported by the authors. Thus it appears that we can reproduce the reported values, albeit via an analyses we think is incorrect.
+
+Let's run reproCheck:
 
 ```{r}
 ## repro check values
